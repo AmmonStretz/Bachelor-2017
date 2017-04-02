@@ -2,6 +2,11 @@
     "name": "bike-map",
     "version": "0.0.0",
     "license": "MIT",
+    "description": "TODO: Description",
+    "author": {
+        "name": "Ammon-Mino Stretz",
+        "email": "ammon-mino@web.de"
+    },
     "angular-cli": {},
     "scripts": {
         "ng": "ng",
