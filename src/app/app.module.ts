@@ -12,6 +12,8 @@ import { MapDirective } from './directives/map/map.directive';
 
 import { MapManagementService } from './services/map-management/map-management.service';
 import { OsmConnectionService } from './services/osm-connection/osm-connection.service';
+import { MapViewComponent } from './components/map-view/map-view.component';
+import { RotationButtonComponent } from './components/rotation-button/rotation-button.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { OsmConnectionService } from './services/osm-connection/osm-connection.s
     NavigationComponent,
     ButtonComponent,
     SettingsComponent,
-    MapDirective
+    MapDirective,
+    MapViewComponent,
+    RotationButtonComponent
 ],
   imports: [
     BrowserModule,

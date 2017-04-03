@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { MapManagementService } from './services/map-management/map-management.service';
 
 @Component({
   selector: 'map-root',
@@ -6,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'map works!';
+
+  constructor() {
+  }
 }
