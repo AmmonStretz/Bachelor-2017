@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
+import { Http } from '@angular/http';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class OsmConnectionService {
 
-constructor() { }
+constructor(private http: Http) { }
+
+
 
 }
