@@ -11,6 +11,7 @@ import { SettingsComponent } from './components/settings/settings.component';
 import { MapDirective } from './directives/map/map.directive';
 
 import { MapManagementService } from './services/map-management/map-management.service';
+import { OsmConnectionService } from './services/osm-connection/osm-connection.service';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,7 @@ import { MapManagementService } from './services/map-management/map-management.s
     HttpModule,
     AppRoutingModule
   ],
-  providers: [MapManagementService],
+  providers: [MapManagementService, OsmConnectionService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

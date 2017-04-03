@@ -4,13 +4,14 @@ import {
   Geolocation, Map, View, Tile, layer,
   source, control, interaction, geom, proj, format, style, Feature, coordinate
 } from 'openlayers';
+import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 
 @Injectable()
 export class MapManagementService {
 
   private static map: Map;
   private static goalLayer: layer.Vector;
-  // public static osmConnection: OsmConnectionService;
+  public static osmConnection: OsmConnectionService;
 
   public static position: any;
 
