@@ -22,13 +22,9 @@ export class MapManagementService {
   public static followRotation = true;
 
   public static getMapInstance(elementRef: ElementRef): Map {
-    if (MapManagementService.map == null) {
-      MapManagementService.map = new Map({
-        layers: [
-          new layer.Tile({
-            source: new source.OSM()
-          })
-        ],
+    if (this.map == null) {
+      this.map = new Map({
+        layers: [new layer.Tile({ source: new source.OSM() })],
         target: elementRef.nativeElement,
         view: new View({
           center: proj.fromLonLat([13.33962, 52.53250]),
@@ -36,7 +32,7 @@ export class MapManagementService {
         })
       });
     }
-    return MapManagementService.map;
+    return this.map;
   }
 
   private static getDistToPoint(coord: any, x: number, y: number): number {
@@ -113,7 +109,7 @@ export class MapManagementService {
   public static panToLocation(): void {
     if (this.position != null) {
       this.map.getView().animate({
-        center: proj.fromLonLat([MapManagementService.position.coords.longitude, MapManagementService.position.coords.latitude]),
+        center: proj.fromLonLat([this.position.coords.longitude, this.position.coords.latitude]),
         zoom: 18,
         duration: 2000
       });
