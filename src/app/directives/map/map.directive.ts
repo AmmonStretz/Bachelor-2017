@@ -14,8 +14,7 @@ export class MapDirective {
     MapManagementService.osmConnection = osmConnection;
     this.map = MapManagementService.getMapInstance(elementRef);
     this.map.on('click', function (event) {
-      let a = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
-      MapManagementService.setMarker(a[0], a[1]);
+      MapManagementService.click(event);
     });
   }
 

@@ -14,6 +14,7 @@ import { MapManagementService } from './services/map-management/map-management.s
 import { OsmConnectionService } from './services/osm-connection/osm-connection.service';
 import { MapViewComponent } from './components/map-view/map-view.component';
 import { RotationButtonComponent } from './components/rotation-button/rotation-button.component';
+import { InformationFieldComponent } from './components/information-field/information-field.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { RotationButtonComponent } from './components/rotation-button/rotation-b
     SettingsComponent,
     MapDirective,
     MapViewComponent,
-    RotationButtonComponent
+    RotationButtonComponent,
+    InformationFieldComponent
 ],
   imports: [
     BrowserModule,

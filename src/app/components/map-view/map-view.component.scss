@@ -23,3 +23,12 @@ button[rotation-button] {
     top: 80px;
     right: 24px;
 }
+
+map-information-field {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    min-height: 56px;
+    background-color: white;
+}

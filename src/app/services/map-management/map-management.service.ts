@@ -6,6 +6,7 @@ import {
 } from 'openlayers';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { Constants } from './../../classes/constants';
+import { InformationFieldComponent } from './../../components/information-field/information-field.component'
 
 @Injectable()
 export class MapManagementService {
@@ -16,10 +17,12 @@ export class MapManagementService {
 
   public static position: any;
 
-  //map modes
-  public static followPosition = true;
+  public static followPosition = false;
   public static followZoom = false;
-  public static followRotation = true;
+  public static followRotation = false;
+
+  public static activeMarker = null;
+  private static infos: InformationFieldComponent;
 
   public static getMapInstance(elementRef: ElementRef): Map {
     if (this.map == null) {
@@ -47,8 +50,8 @@ export class MapManagementService {
         if (nearest == null) {
           nearest = element;
         } else {
-          let dist01 = this.getDistToPoint(element, x, y);
-          let dist02 = this.getDistToPoint(nearest, x, y);
+          const dist01 = this.getDistToPoint(element, x, y);
+          const dist02 = this.getDistToPoint(nearest, x, y);
           if (dist01 < dist02) {
             nearest = element;
           }
@@ -69,11 +72,11 @@ export class MapManagementService {
       let nodes = [];
       let ways = [];
       res.forEach(element => {
-        if (element.type == "node") {
+        if (element.type == 'node') {
           nodes[element.id] = element;
-          console.log("node");
-        } else if (element.type == "way") {
-          console.log("way");
+          console.log('node');
+        } else if (element.type == 'way') {
+          console.log('way');
           ways[element.id] = element;
           for (let i = 0; i < element.nodes.length - 1; i++) {
             let a = { x: parseFloat(nodes[element.nodes[i]].lon), y: parseFloat(nodes[element.nodes[i]].lat) };
@@ -141,4 +144,35 @@ export class MapManagementService {
       this.map.getView().animate(animation);
     }
   }
+
+  //Listener interaction
+
+  public static click(event) {
+    const feature = this.map.forEachFeatureAtPixel(event.pixel,
+      (feature) => { return feature; });
+    if (feature) {
+      console.log(this.activeMarker);
+    } else {
+      //set new Endpoint
+      console.log(event);
+      let a = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
+      this.osmConnection.getNearestAdressNode(a[0], a[1], 0.001).subscribe((res) => {
+        let nearest = null;
+        res.forEach(element => {
+          if (nearest == null || this.getDistToPoint(nearest, a[0], a[1]) > this.getDistToPoint(element, a[0], a[1])) {
+            nearest = element;
+          }
+        });
+        this.activeMarker = nearest;
+        this.infos.bla(this.activeMarker);
+        this.drawMarker(nearest.lon, nearest.lat);
+      });
+      // MapManagementService.setMarker(a[0], a[1]);
+    }
+  }
+  public static setInfos(infos: InformationFieldComponent) {
+    this.infos = infos;
+  }
+
+
 }
