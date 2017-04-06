@@ -15,12 +15,10 @@ export class InformationFieldComponent {
   city: string;
 
   constructor() {
-    MapManagementService.setInfos(this);
+    MapManagementService.registerInformationField(this);
   }
 
-  public bla(chanchedMarker: any) {
-    console.log("Marker");
-    console.log(chanchedMarker.tags);
+  public changeInfo(chanchedMarker: any) {
     this.street = chanchedMarker.tags['addr:street'];
     this.street_nr = chanchedMarker.tags['addr:housenumber'];
     this.postal_code = chanchedMarker.tags['addr:postcode'];

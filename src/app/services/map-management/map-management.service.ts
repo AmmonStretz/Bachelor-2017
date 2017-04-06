@@ -164,13 +164,13 @@ export class MapManagementService {
           }
         });
         this.activeMarker = nearest;
-        this.infos.bla(this.activeMarker);
+        this.infos.changeInfo(this.activeMarker);
         this.drawMarker(nearest.lon, nearest.lat);
       });
       // MapManagementService.setMarker(a[0], a[1]);
     }
   }
-  public static setInfos(infos: InformationFieldComponent) {
+  public static registerInformationField(infos: InformationFieldComponent) {
     this.infos = infos;
   }
 
