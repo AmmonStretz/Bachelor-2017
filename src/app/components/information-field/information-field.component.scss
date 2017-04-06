@@ -1,0 +1,27 @@
+:host {
+    padding-left: 16px;
+}
+
+:host header button {
+    height: 56px;
+    width: 56px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+:host header button:focus {
+    outline: none;
+}
+
+:host header button:active {
+    background-color: #eee;
+}
+
+:host header h4 {
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+}

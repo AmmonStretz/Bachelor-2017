@@ -9,12 +9,15 @@ import { MapManagementService } from './../../services/map-management/map-manage
 })
 export class InformationFieldComponent {
 
+  isOpen: boolean;
+
   street: string;
   street_nr: string;
   postal_code: string;
   city: string;
 
   constructor() {
+    this.isOpen = false;
     MapManagementService.registerInformationField(this);
   }
 
@@ -23,6 +26,10 @@ export class InformationFieldComponent {
     this.street_nr = chanchedMarker.tags['addr:housenumber'];
     this.postal_code = chanchedMarker.tags['addr:postcode'];
     this.city = chanchedMarker.tags['addr:city'];
+  }
+
+  public toogle(): void {
+    this.isOpen = !this.isOpen;
   }
 
 }

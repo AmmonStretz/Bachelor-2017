@@ -151,10 +151,9 @@ export class MapManagementService {
     const feature = this.map.forEachFeatureAtPixel(event.pixel,
       (feature) => { return feature; });
     if (feature) {
-      console.log(this.activeMarker);
+      this.infos.toogle();
     } else {
       //set new Endpoint
-      console.log(event);
       let a = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
       this.osmConnection.getNearestAdressNode(a[0], a[1], 0.001).subscribe((res) => {
         let nearest = null;
@@ -164,8 +163,8 @@ export class MapManagementService {
           }
         });
         this.activeMarker = nearest;
-        this.infos.changeInfo(this.activeMarker);
         this.drawMarker(nearest.lon, nearest.lat);
+        this.infos.changeInfo(this.activeMarker);
       });
       // MapManagementService.setMarker(a[0], a[1]);
     }

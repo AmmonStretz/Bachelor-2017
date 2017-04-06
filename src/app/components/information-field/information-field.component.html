@@ -1,3 +1,7 @@
-<p>
+<header>
+    <h4>Informations</h4>
+    <button (click)="toogle()">></button>
+</header>
+<p *ngIf="isOpen">
     {{street}} {{street_nr}}<br> {{postal_code}} {{city}}
 </p>
