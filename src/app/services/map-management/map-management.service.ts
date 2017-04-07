@@ -2,10 +2,13 @@ import { Injectable } from '@angular/core';
 import { OnInit, ElementRef } from '@angular/core';
 import {
   Geolocation, Map, View, Tile, layer,
-  source, control, interaction, geom, proj, format, style, Feature, coordinate
+  source, control, interaction, geom, proj, format, style, Feature, Coordinate
 } from 'openlayers';
+import { RoutingService } from './../../services/routing/routing.service';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { Constants } from './../../classes/constants';
+import { Route } from './../../classes/route';
+import { Node } from './../../classes/node';
 import { InformationFieldComponent } from './../../components/information-field/information-field.component'
 
 @Injectable()
@@ -13,6 +16,7 @@ export class MapManagementService {
 
   private static map: Map;
   private static goalLayer: layer.Vector;
+  private static routeLayer: layer.Vector;
   public static osmConnection: OsmConnectionService;
 
   public static position: any;
@@ -59,11 +63,11 @@ export class MapManagementService {
       });
 
       if (nearest == null) {
-        console.log("no element");
+        console.log('no element');
         nearest = {
-          "type": "node",
-          "lat": y,
-          "lon": x
+          'type': 'node',
+          'lat': y,
+          'lon': x
         };
       }
       this.drawMarker(nearest.lon, nearest.lat);
@@ -72,10 +76,10 @@ export class MapManagementService {
       let nodes = [];
       let ways = [];
       res.forEach(element => {
-        if (element.type == 'node') {
+        if (element.type === 'node') {
           nodes[element.id] = element;
           console.log('node');
-        } else if (element.type == 'way') {
+        } else if (element.type === 'way') {
           console.log('way');
           ways[element.id] = element;
           for (let i = 0; i < element.nodes.length - 1; i++) {
@@ -91,6 +95,22 @@ export class MapManagementService {
         // console.log(element.type);
       });
     });
+  }
+  public static drawLineString(points: Coordinate[]) {
+    console.log(points);
+    let str = new geom.LineString(points);
+    let vector = new layer.Vector();
+    vector.setStyle(Constants.pointStyle);
+    vector.setSource(new source.Vector({
+      features: [
+        new Feature({
+          geometry: str,
+          name: 'routeLayer'
+        })]
+    }));
+    this.map.removeLayer(this.routeLayer);
+    this.map.addLayer(vector);
+    this.routeLayer = vector;
   }
 
   public static drawMarker(lon: number, lat: number): void {
@@ -145,6 +165,18 @@ export class MapManagementService {
     }
   }
 
+  public static setRoute() {
+    if (this.activeMarker) {
+      let l: layer.Vector = RoutingService.generateRoute(
+        new Node(null, this.position.coords.longitude, this.position.coords.latitude),
+        new Node(this.activeMarker.id, this.activeMarker.lon, this.activeMarker.lat)
+      ).generateLayer();
+      this.map.removeLayer(this.routeLayer);
+      this.map.addLayer(l);
+      this.routeLayer = l;
+    }
+  }
+
   //Listener interaction
 
   public static click(event) {
@@ -162,6 +194,10 @@ export class MapManagementService {
             nearest = element;
           }
         });
+        if (this.routeLayer != null) {
+          this.map.removeLayer(this.routeLayer);
+          this.routeLayer = null;
+        }
         this.activeMarker = nearest;
         this.drawMarker(nearest.lon, nearest.lat);
         this.infos.changeInfo(this.activeMarker);

@@ -1,3 +1,8 @@
+import {
+  Geolocation, Map, View, Tile, layer,
+  source, control, interaction, geom, proj, format, style, Feature, Coordinate
+} from 'openlayers';
+
 export class Node {
 
   public id: number;

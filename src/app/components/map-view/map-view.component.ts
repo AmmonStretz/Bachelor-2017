@@ -23,7 +23,7 @@ export class MapViewComponent implements OnInit {
   }
 
   onclickStartRouteButton(): void {
-
+    MapManagementService.setRoute();
   }
 
   ngOnInit() {
