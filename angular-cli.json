@@ -20,7 +20,7 @@
         "styles": [
             "styles.scss",
             "../node_modules/roboto-fontface/css/roboto/roboto-fontface.css",
-            "../node_modules/material-icons/css/material-icons.css"
+            "../node_modules/material-design-icons/iconfont/material-icons.css"
         ],
         "scripts": [],
         "environments": {
@@ -29,6 +29,9 @@
             "prod": "environments/environment.prod.ts"
         }
     }],
+    "addons": [
+        "../node_modules/roboto-fontface/fonts/Roboto/*.+(otf|eot|svg|ttf|woff|woff2)"
+    ],
     "e2e": {
         "protractor": {
             "config": "./protractor.conf.js"
