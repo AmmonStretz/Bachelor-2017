@@ -11,7 +11,11 @@ import { Constants } from './../../classes/constants';
 @Injectable()
 export class RoutingService {
 
-  public static generateRoute(start: Node, goal: Node): Route {
+  constructor(private osmConnectionService: OsmConnectionService){
+
+  }
+
+  public generateRoute(start: Node, goal: Node): Route {
     let r: Route = new Route();
     r.addNode(start);
     r.addNode(goal);

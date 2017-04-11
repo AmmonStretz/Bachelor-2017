@@ -32,3 +32,13 @@ map-information-field {
     min-height: 56px;
     background-color: white;
 }
+
+#marker {
+    font-family: 'Material Icons';
+    font-size: 48px;
+    margin-left: -25px;
+    margin-top: -48px;
+    cursor: pointer;
+    color: rgb(51, 105, 30);
+    display: none;
+}

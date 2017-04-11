@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MapManagementService } from './../../services/map-management/map-management.service';
 
 
@@ -9,7 +9,7 @@ import { MapManagementService } from './../../services/map-management/map-manage
 })
 export class InformationFieldComponent {
 
-  isOpen: boolean;
+  isOpen: boolean = false; 
 
   street: string;
   street_nr: string;
@@ -17,7 +17,6 @@ export class InformationFieldComponent {
   city: string;
 
   constructor() {
-    this.isOpen = false;
     MapManagementService.registerInformationField(this);
   }
 
@@ -28,7 +27,7 @@ export class InformationFieldComponent {
     this.city = chanchedMarker.tags['addr:city'];
   }
 
-  public toogle(): void {
+  public toggle(): void {
     this.isOpen = !this.isOpen;
   }
 

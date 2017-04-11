@@ -14,4 +14,11 @@ export class Node {
     this.lon = lon;
     this.lat = lat;
   }
+
+  public getDistToPoint(n1: Node): number {
+    return Math.sqrt(
+      (this.lon - n1.lon) * (this.lon - n1.lon) +
+      (this.lat - n1.lat) * (this.lat - n1.lat)
+    );
+  }
 }

@@ -1,32 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { InformationFieldComponent } from './../information-field/information-field.component';
 import { MapManagementService } from './../../services/map-management/map-management.service';
+import { MapDirective } from './../../directives/map/map.directive';
 
 @Component({
   selector: 'map-view',
   templateUrl: './map-view.component.html',
   styleUrls: ['./map-view.component.scss']
 })
-export class MapViewComponent implements OnInit {
+export class MapViewComponent implements AfterViewInit {
 
-  constructor() {navigator.geolocation.watchPosition((position) => {
-      MapManagementService.updatePosition(position);
-    }, (error) => {
-      //
-    });
-  }
-  onclickLocationButton(): void {
-    MapManagementService.panToLocation();
-  }
+  @ViewChild('info') info: InformationFieldComponent;
+  @ViewChild(MapDirective) map: MapDirective;
 
-  onclickRotationButton(): void {
-    MapManagementService.panToRotation();
+  ngAfterViewInit() {
+  }
+  locate(): void {
+    this.map.locate();
   }
 
-  onclickStartRouteButton(): void {
-    MapManagementService.setRoute();
+  rotate(): void {
+    this.map.rotate();
   }
 
-  ngOnInit() {
+  route(): void {
+    this.map.route();
   }
 
 }

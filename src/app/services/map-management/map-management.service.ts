@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { OnInit, ElementRef } from '@angular/core';
 import {
   Geolocation, Map, View, Tile, layer,
-  source, control, interaction, geom, proj, format, style, Feature, Coordinate
+  source, control, interaction, geom, proj, format, style, Feature, Coordinate, Overlay
 } from 'openlayers';
 import { RoutingService } from './../../services/routing/routing.service';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
@@ -14,23 +14,28 @@ import { InformationFieldComponent } from './../../components/information-field/
 @Injectable()
 export class MapManagementService {
 
-  private static map: Map;
-  private static goalLayer: layer.Vector;
-  private static routeLayer: layer.Vector;
-  public static osmConnection: OsmConnectionService;
-
-  public static position: any;
-
-  public static followPosition = false;
-  public static followZoom = false;
-  public static followRotation = false;
-
-  public static activeMarker = null;
   private static infos: InformationFieldComponent;
 
-  public static getMapInstance(elementRef: ElementRef): Map {
-    if (this.map == null) {
-      this.map = new Map({
+  public map: Map;
+  private goalLayer: layer.Vector;
+  private routeLayer: layer.Vector;
+  public osmConnection: OsmConnectionService;
+  public routingService: RoutingService;
+
+  public position: any;
+
+  public followPosition = false;
+  public followZoom = false;
+  public followRotation = false;
+
+  public activeMarker = null;
+  public markerOverlay = null;
+
+  public static registerInformationField(infos: InformationFieldComponent) {
+    this.infos = infos;
+  }
+  constructor(elementRef: ElementRef){
+    this.map = new Map({
         layers: [new layer.Tile({ source: new source.OSM() })],
         target: elementRef.nativeElement,
         view: new View({
@@ -38,98 +43,27 @@ export class MapManagementService {
           zoom: 18
         })
       });
-    }
-    return this.map;
   }
 
-  private static getDistToPoint(coord: any, x: number, y: number): number {
+  private getDistToPoint(coord: any, x: number, y: number): number {
     return Math.sqrt((coord.lon - x) * (coord.lon - x) + (coord.lat - y) * (coord.lat - y));
   }
 
-  public static setMarker(x: number, y: number) {
-    let nearest = null;
-
-    this.osmConnection.getNearestNode(x, y, 0.0005).subscribe((res) => {
-      res.forEach(element => {
-        if (nearest == null) {
-          nearest = element;
-        } else {
-          const dist01 = this.getDistToPoint(element, x, y);
-          const dist02 = this.getDistToPoint(nearest, x, y);
-          if (dist01 < dist02) {
-            nearest = element;
-          }
-        }
-      });
-
-      if (nearest == null) {
-        console.log('no element');
-        nearest = {
-          'type': 'node',
-          'lat': y,
-          'lon': x
-        };
-      }
-      this.drawMarker(nearest.lon, nearest.lat);
+  public drawMarker(lon: number, lat: number): void {
+    const marker = document.getElementById('marker');
+    marker.style.display = 'block';
+    const overlay = new Overlay({
+      id: 1,
+      position: proj.fromLonLat([lon, lat]),
+      element: marker
     });
-    this.osmConnection.getNearestHighways(x, y, 0.0005).subscribe((res) => {
-      let nodes = [];
-      let ways = [];
-      res.forEach(element => {
-        if (element.type === 'node') {
-          nodes[element.id] = element;
-          console.log('node');
-        } else if (element.type === 'way') {
-          console.log('way');
-          ways[element.id] = element;
-          for (let i = 0; i < element.nodes.length - 1; i++) {
-            let a = { x: parseFloat(nodes[element.nodes[i]].lon), y: parseFloat(nodes[element.nodes[i]].lat) };
-            let b = { x: parseFloat(nodes[element.nodes[i + 1]].lon), y: parseFloat(nodes[element.nodes[i + 1]].lat) };
-            let k = (x * (b.x - a.x) - a.x * (b.x - a.x) + y * (b.y - a.y) - a.y * (b.y - a.y)) / ((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
-            if (k > 0 && k < 1) {
-              console.log(k);
-              this.drawMarker(a.x + k * (b.x - a.x), a.y + k * (b.y - a.y));
-            }
-          }
-        }
-        // console.log(element.type);
-      });
-    });
-  }
-  public static drawLineString(points: Coordinate[]) {
-    console.log(points);
-    let str = new geom.LineString(points);
-    let vector = new layer.Vector();
-    vector.setStyle(Constants.pointStyle);
-    vector.setSource(new source.Vector({
-      features: [
-        new Feature({
-          geometry: str,
-          name: 'routeLayer'
-        })]
-    }));
-    this.map.removeLayer(this.routeLayer);
-    this.map.addLayer(vector);
-    this.routeLayer = vector;
+    // console.log(this.map.getOverlayById(1));
+    this.map.removeOverlay(this.markerOverlay);
+    this.map.addOverlay(overlay);
+    this.markerOverlay = overlay;
   }
 
-  public static drawMarker(lon: number, lat: number): void {
-    let vector = new layer.Vector();
-    vector.setStyle(Constants.pointStyle);
-    vector.setSource(new source.Vector({
-      features: [
-        new Feature({
-          geometry: new geom.Circle(proj.fromLonLat([lon, lat]), 10),
-          labelPoint: new geom.Point(proj.fromLonLat([lon, lat])),
-          name: 'goalMarker'
-        })]
-    }));
-    this.map.removeLayer(this.goalLayer);
-    this.map.addLayer(vector);
-    this.goalLayer = vector;
-  }
-
-  public static panToLocation(): void {
+  public panToLocation(): void {
     if (this.position != null) {
       this.map.getView().animate({
         center: proj.fromLonLat([this.position.coords.longitude, this.position.coords.latitude]),
@@ -139,7 +73,7 @@ export class MapManagementService {
     }
   }
 
-  public static panToRotation(): void {
+  public panToRotation(): void {
     console.log(this.map.getView().getRotation());
     let goalRotation = 0;
     if (this.position.coords.heading != null) {
@@ -151,12 +85,13 @@ export class MapManagementService {
     });
   }
 
-  public static updatePosition(position: any): void {
+  public updatePosition(position: any): void {
     this.position = position;
-    const animation = {};
-    animation['center'] = proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
-    animation['zoom'] = 18;
-    animation['duration'] = 2000;
+    const animation = {
+      center: proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
+      zoom: 18,
+      duration: 2000
+    };
     if (position.coords.heading != null && this.followRotation) {
       animation['rotation'] = position.coords.heading;
     }
@@ -165,9 +100,9 @@ export class MapManagementService {
     }
   }
 
-  public static setRoute() {
+  public setRoute() {
     if (this.activeMarker) {
-      let l: layer.Vector = RoutingService.generateRoute(
+      let l: layer.Vector = this.routingService.generateRoute(
         new Node(null, this.position.coords.longitude, this.position.coords.latitude),
         new Node(this.activeMarker.id, this.activeMarker.lon, this.activeMarker.lat)
       ).generateLayer();
@@ -177,15 +112,15 @@ export class MapManagementService {
     }
   }
 
-  //Listener interaction
+  // Listener interaction
 
-  public static click(event) {
+  public click(event) {
     const feature = this.map.forEachFeatureAtPixel(event.pixel,
       (feature) => { return feature; });
     if (feature) {
-      this.infos.toogle();
+
     } else {
-      //set new Endpoint
+      // set new Endpoint
       let a = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
       this.osmConnection.getNearestAdressNode(a[0], a[1], 0.001).subscribe((res) => {
         let nearest = null;
@@ -200,14 +135,9 @@ export class MapManagementService {
         }
         this.activeMarker = nearest;
         this.drawMarker(nearest.lon, nearest.lat);
-        this.infos.changeInfo(this.activeMarker);
+        MapManagementService.infos.changeInfo(this.activeMarker);
       });
       // MapManagementService.setMarker(a[0], a[1]);
     }
   }
-  public static registerInformationField(infos: InformationFieldComponent) {
-    this.infos = infos;
-  }
-
-
 }
