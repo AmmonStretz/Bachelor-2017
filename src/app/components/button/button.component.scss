@@ -23,6 +23,8 @@ $black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
 :host i {
     position: relative;
     font-style: normal;
+    display: block;
+    width: 24px;
 }
 
 :host .hover-field {

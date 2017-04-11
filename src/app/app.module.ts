@@ -13,7 +13,6 @@ import { MapDirective } from './directives/map/map.directive';
 import { MapManagementService } from './services/map-management/map-management.service';
 import { OsmConnectionService } from './services/osm-connection/osm-connection.service';
 import { MapViewComponent } from './components/map-view/map-view.component';
-import { RotationButtonComponent } from './components/rotation-button/rotation-button.component';
 import { InformationFieldComponent } from './components/information-field/information-field.component';
 
 @NgModule({
@@ -24,7 +23,6 @@ import { InformationFieldComponent } from './components/information-field/inform
     SettingsComponent,
     MapDirective,
     MapViewComponent,
-    RotationButtonComponent,
     InformationFieldComponent
 ],
   imports: [

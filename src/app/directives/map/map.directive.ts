@@ -4,47 +4,91 @@ import { MapManagementService } from './../../services/map-management/map-manage
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { RoutingService } from './../../services/routing/routing.service';
 
+import { Route } from './../../classes/route';
+import { Node } from './../../classes/node';
+
 @Directive({
   selector: '[map]'
 })
 export class MapDirective {
 
   map: Map;
-  mMS: MapManagementService;
+  mapManagementService: MapManagementService;
+  routingService: RoutingService;
+  public position: any;
+  public activeMarker = null;
 
   constructor(elementRef: ElementRef, private osmConnection: OsmConnectionService) {
-    let mMS = new MapManagementService(elementRef);
-    this.mMS =mMS;
-    this.mMS.osmConnection = osmConnection;
-    this.mMS.routingService = new RoutingService(osmConnection);
-    this.map = this.mMS.map;
+    const mapManagementService = new MapManagementService(elementRef);
+    this.mapManagementService = mapManagementService;
+    this.routingService = new RoutingService(osmConnection);
+    this.mapManagementService.osmConnection = osmConnection;
+    this.mapManagementService.routingService = new RoutingService(osmConnection);
+    this.map = this.mapManagementService.map;
+
+    let d: MapDirective = this;
+    // onClick Listener added
     this.map.on('click', function (event) {
-      mMS.click(event);
+      d.click(event);
+    });
+    this.map.on('pointermove', function (event) {
+      const feature = d.map.forEachFeatureAtPixel(event.pixel,
+      (feature: Feature) => { return feature; });
+      if(feature){
+        console.log(feature);
+      }
     });
 
-    //Position Listener added
+    // Position Listener added
     navigator.geolocation.watchPosition((position) => {
-      this.mMS.updatePosition(position);
+      this.position = position;
+      // this.mapManagementService.updatePosition(position);
     }, (error) => { });
-  }
-  public bla(){
-    console.log("blabla");
   }
 
   public locate(): void {
-    this.mMS.panToLocation();
+    if (this.position != null) {
+      // console.log(this.position.coords);
+      this.mapManagementService.goToLocation(this.position.coords)
+    }
   }
 
   public rotate(): void {
-    this.mMS.panToRotation();
+    let goalRotation = 0;
+    if (this.position.coords.heading != null) {
+      goalRotation = this.position.coords.heading;
+    }
+    this.mapManagementService.rotate(goalRotation);
   }
 
   public route(): void {
-    this.mMS.setRoute();
+    if (this.activeMarker) {
+      this.mapManagementService.setRoute(this.routingService.generateRoute(
+        new Node(null, this.position.coords.longitude, this.position.coords.latitude),
+        new Node(this.activeMarker.id, this.activeMarker.lon, this.activeMarker.lat)
+      ));
+    }
   }
 
-  public clickMarker() {
-    console.log("click Marker");
-  }
+  public click(event) {
+    const feature = this.map.forEachFeatureAtPixel(event.pixel,
+      (feature) => { return feature; });
+    if (feature) {
+      console.log("You clicked on it");
+    } else {
+      // set new Endpoint
+      const coord = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
+      this.routingService.getNearestAdressNode(coord, (nearest) => {
+        this.mapManagementService.removeRouteLayer();
 
+        this.activeMarker = nearest;
+        this.mapManagementService.drawMarker(nearest.lon, nearest.lat);
+        MapManagementService.infos.changeInfo(this.activeMarker);
+      });
+      // MapManagementService.setMarker(a[0], a[1]);
+    }
+  }
+  private getDistToPoint(coord: any, x: number, y: number): number {
+    return Math.sqrt((coord.lon - x) * (coord.lon - x) + (coord.lat - y) * (coord.lat - y));
+  }
 }

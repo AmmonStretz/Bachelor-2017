@@ -14,7 +14,20 @@ export class RoutingService {
   constructor(private osmConnectionService: OsmConnectionService){
 
   }
-
+  private getDistToPoint(coord: any, x: number, y: number): number {
+    return Math.sqrt((coord.lon - x) * (coord.lon - x) + (coord.lat - y) * (coord.lat - y));
+  }
+  public getNearestAdressNode(a: number[], subscribe: Function): void {
+    this.osmConnectionService.getNearestAdressNode(a[0], a[1], 0.001).subscribe((res) => {
+        let nearest = null;
+        res.forEach(element => {
+          if (nearest == null || this.getDistToPoint(nearest, a[0], a[1]) > this.getDistToPoint(element, a[0], a[1])) {
+            nearest = element;
+          }
+        });
+        subscribe(nearest);
+      });
+  }
   public generateRoute(start: Node, goal: Node): Route {
     let r: Route = new Route();
     r.addNode(start);

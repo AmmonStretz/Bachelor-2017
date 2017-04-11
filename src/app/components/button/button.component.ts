@@ -2,19 +2,23 @@ import { Component, Input, OnInit, ViewChild, AfterViewInit, ElementRef } from '
 
 @Component({
   selector: 'button[map-button]',
-  templateUrl: './button.component.html',
+  template: `
+  <div class="hover-field"></div>
+  <i>
+    <ng-content></ng-content>
+  </i>
+  `,
   styleUrls: ['./button.component.scss']
 })
 export class ButtonComponent implements OnInit, AfterViewInit {
-  @Input() icon: string;
-  constructor() {
+  // @Input() icon: string;
+  constructor(public element: ElementRef) {
   }
 
   ngOnInit() {
-    console.log(this.icon);
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     // console.log(this.galleryContainer);
   }
 }
