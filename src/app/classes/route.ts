@@ -8,9 +8,11 @@ import { Constants } from './constants';
 export class Route {
 
   public routeNodes: Node[];
+  public tags: Object[];
 
-  constructor() {
+  constructor(tags?: Object[]) {
     this.routeNodes = [];
+    this.tags = tags || [];
   }
 
   public addNode(node: Node) {
@@ -26,8 +28,7 @@ export class Route {
       source: new source.Vector({
         features: [
           new Feature({
-            geometry:  new geom.LineString(coords),
-            name: 'routeLayer'
+            geometry:  new geom.LineString(coords)
           })]
       }), style: Constants.pointStyle
     });

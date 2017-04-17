@@ -12,6 +12,7 @@ export class MapViewComponent implements AfterViewInit {
 
   @ViewChild('info') info: InformationFieldComponent;
   @ViewChild(MapDirective) map: MapDirective;
+  settingsVisible = false;
 
   ngAfterViewInit() {
   }

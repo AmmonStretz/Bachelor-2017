@@ -1,10 +1,12 @@
 <div map></div>
 <map-information-field #info></map-information-field>
-<button map-button class="primary" id="primary" (click)="route()">directions_bike</button>
-<button map-button class="secondary" id="secondary" (click)="locate()">my_location</button>
-<button map-button class="secondary min" id="topButton" (click)="rotate()">
+<map-button class="primary" id="primary" (click)="route()">directions_bike</map-button>
+<map-button class="secondary" id="secondary" (click)="locate()">my_location</map-button>
+<map-button class="secondary min" id="topButton" (click)="rotate()">
     <img src="../../assets/img/compass.svg">
-</button>
+</map-button>
 <div id="marker" (click)="info.toggle()">
     place
 </div>
+<map-settings *ngIf="settingsVisible"></map-settings>
+<header map-navigation (click)="settingsVisible = !settingsVisible"></header>

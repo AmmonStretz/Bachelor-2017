@@ -1,9 +1,4 @@
-$primary-color: #8bc34a;
-$dark-primary: #7cb342;
-$white-color: #fff;
-$grey-color: #686868;
-$light-grey: #eee;
-$black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
+@import "./../../../styles.scss";
 :host {
     position: fixed;
     top: 0;
@@ -13,32 +8,30 @@ $black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
     background-color: $primary-color;
     color: $white-color;
     overflow: auto;
-}
-
-:host h2 {
-    margin: 0;
-    display: block;
-    width: calc(100% - 56px);
-    font-weight: normal;
-    padding: 13.5px 8px;
-    float: left;
-    box-sizing: border-box;
-    cursor: default;
-}
-
-:host i {
-    font-family: 'Material Icons';
-    font-style: normal;
-    font-size: 24px;
-    display: block;
-    padding: 17px;
-    width: 56px;
-    height: 56px;
-    box-sizing: border-box;
-    float: left;
-    cursor: pointer;
-}
-
-:host i:active {
-    background-color: $dark-primary;
+    box-shadow: $black-shaddow;
+    h2 {
+        margin: 0;
+        display: block;
+        width: calc(100% - 56px);
+        font-weight: normal;
+        padding: 13.5px 8px;
+        float: left;
+        box-sizing: border-box;
+        cursor: default;
+    }
+    i {
+        font-family: 'Material Icons';
+        font-style: normal;
+        font-size: 24px;
+        display: block;
+        padding: 17px;
+        width: 56px;
+        height: 56px;
+        box-sizing: border-box;
+        float: left;
+        cursor: pointer;
+        &:active {
+            background-color: $dark-primary;
+        }
+    }
 }

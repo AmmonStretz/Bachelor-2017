@@ -40,21 +40,23 @@ export class MapManagementService {
       target: elementRef.nativeElement,
       view: new View({
         center: proj.fromLonLat([13.33962, 52.53250]),
+        projection: 'EPSG:3857',
         zoom: 18
       })
     });
+
   }
 
   private getDistToPoint(coord: any, x: number, y: number): number {
     return Math.sqrt((coord.lon - x) * (coord.lon - x) + (coord.lat - y) * (coord.lat - y));
   }
 
-  public drawMarker(lon: number, lat: number): void {
+  public drawMarker(coord: Coordinate): void {
     const marker = document.getElementById('marker');
     marker.style.display = 'block';
     const overlay = new Overlay({
       id: 1,
-      position: proj.fromLonLat([lon, lat]),
+      position: proj.fromLonLat(coord),
       element: marker
     });
     // console.log(this.map.getOverlayById(1));
@@ -79,7 +81,6 @@ export class MapManagementService {
   }
 
   public updatePosition(position: any): void {
-    // this.position = position;
     const animation = {
       center: proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
       zoom: 18,

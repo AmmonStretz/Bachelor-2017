@@ -1,44 +1,54 @@
-[map] {
-    position: fixed;
-    top: 56px;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 56px);
-}
-
-#primary {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-}
-
-#secondary {
-    position: fixed;
-    bottom: 88px;
-    right: 16px;
-}
-
-button#topButton {
-    position: fixed;
-    top: 80px;
-    right: 24px;
-}
-
-map-information-field {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    min-height: 56px;
-    background-color: white;
-}
-
-#marker {
-    font-family: 'Material Icons';
-    font-size: 48px;
-    margin-left: -25px;
-    margin-top: -48px;
-    cursor: pointer;
-    color: rgb(51, 105, 30);
-    display: none;
-}
+    @import "./../../../styles.scss";
+    [map] {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 56px);
+    }
+    
+    #primary {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+    }
+    
+    #secondary {
+        position: fixed;
+        bottom: 88px;
+        right: 16px;
+    }
+    
+    #topButton {
+        position: fixed;
+        top: 80px;
+        right: 24px;
+    }
+    
+    map-information-field {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        min-height: 56px;
+    }
+    
+    #marker {
+        font-family: 'Material Icons';
+        font-size: 48px;
+        margin-left: -25px;
+        margin-top: -48px;
+        cursor: pointer;
+        color: $darkest-primary;
+    }
+    
+    map-settings {
+        position: absolute;
+        top: 56px;
+        left: 0;
+        width: 100%;
+        min-height: calc(100vh - 56px);
+        background-color: $grey-color;
+        padding: 16px;
+        box-sizing: border-box;
+    }

@@ -1,5 +1,8 @@
 import { Directive, ElementRef } from '@angular/core';
-import { Map, View, Tile, layer, source, control, interaction, geom, proj, format, style, Feature, coordinate } from 'openlayers';
+import {
+  Map, View, Tile, layer, source, control,
+  Coordinate, interaction, geom, proj, format, style, Feature, coordinate
+} from 'openlayers';
 import { MapManagementService } from './../../services/map-management/map-management.service';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { RoutingService } from './../../services/routing/routing.service';
@@ -16,7 +19,7 @@ export class MapDirective {
   mapManagementService: MapManagementService;
   routingService: RoutingService;
   public position: any;
-  public activeMarker = null;
+  public activeMarker: Node = null;
 
   constructor(elementRef: ElementRef, private osmConnection: OsmConnectionService) {
     const mapManagementService = new MapManagementService(elementRef);
@@ -31,13 +34,13 @@ export class MapDirective {
     this.map.on('click', function (event) {
       d.click(event);
     });
-    this.map.on('pointermove', function (event) {
-      const feature = d.map.forEachFeatureAtPixel(event.pixel,
-      (feature: Feature) => { return feature; });
-      if(feature){
-        console.log(feature);
-      }
-    });
+    // this.map.on('pointermove', function (event) {
+    //   const feature = d.map.forEachFeatureAtPixel(event.pixel,
+    //   (feature: Feature) => { return feature; });
+    //   if(feature){
+    //     console.log(feature);
+    //   }
+    // });
 
     // Position Listener added
     navigator.geolocation.watchPosition((position) => {
@@ -63,6 +66,7 @@ export class MapDirective {
 
   public route(): void {
     if (this.activeMarker) {
+      this.routingService.getNearestPointOnStreet(this.activeMarker);
       this.mapManagementService.setRoute(this.routingService.generateRoute(
         new Node(null, this.position.coords.longitude, this.position.coords.latitude),
         new Node(this.activeMarker.id, this.activeMarker.lon, this.activeMarker.lat)
@@ -71,6 +75,7 @@ export class MapDirective {
   }
 
   public click(event) {
+      console.log(this.activeMarker);
     const feature = this.map.forEachFeatureAtPixel(event.pixel,
       (feature) => { return feature; });
     if (feature) {
@@ -81,8 +86,8 @@ export class MapDirective {
       this.routingService.getNearestAdressNode(coord, (nearest) => {
         this.mapManagementService.removeRouteLayer();
 
-        this.activeMarker = nearest;
-        this.mapManagementService.drawMarker(nearest.lon, nearest.lat);
+        this.activeMarker = new Node(nearest.id, nearest.lon, nearest.lat, nearest.tags);
+        this.mapManagementService.drawMarker([this.activeMarker.lon, this.activeMarker.lat]);
         MapManagementService.infos.changeInfo(this.activeMarker);
       });
       // MapManagementService.setMarker(a[0], a[1]);

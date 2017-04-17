@@ -8,11 +8,13 @@ export class Node {
   public id: number;
   public lon: number;
   public lat: number;
+  public tags: Object[];
 
-  constructor(id: number, lon: number, lat: number) {
+  constructor(id: number, lon: number, lat: number, tags?: Object[]) {
     this.id = id;
     this.lon = lon;
     this.lat = lat;
+    this.tags = tags || [];
   }
 
   public getDistToPoint(n1: Node): number {

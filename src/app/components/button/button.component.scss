@@ -1,9 +1,4 @@
-$primary-color: #8bc34a;
-$dark-primary: #7cb342;
-$white-color: #fff;
-$grey-color: #686868;
-$light-grey: #eee;
-$black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
+@import "./../../../styles.scss";
 :host {
     font-family: 'Material Icons';
     position: relative;
@@ -14,49 +9,59 @@ $black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
     box-shadow: $black-shaddow;
     overflow: hidden;
     cursor: pointer;
-}
-
-:host.min {
-    padding: 8px;
-}
-
-:host i {
-    position: relative;
-    font-style: normal;
-    display: block;
-    width: 24px;
-}
-
-:host .hover-field {
-    position: absolute;
-    top: 28px;
-    left: 28px;
-    border-radius: 28px;
-}
-
-:host.min .hover-field {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    border-radius: 20px;
-}
-
-:host.primary .hover-field {
-    background-color: $dark-primary;
-}
-
-:host.secondary .hover-field {
-    background-color: $light-grey;
-}
-
-:host:focus {
-    outline: 0;
-}
-
-:host:active .hover-field {
-    animation-name: buttonHoverAnimation;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
+    &.min {
+        padding: 8px;
+        .hover-field {
+            top: 20px;
+            left: 20px;
+            border-radius: 20px;
+        }
+        &:active .hover-field {
+            animation-name: buttonMinHoverAnimation;
+            animation-duration: 0.5s;
+            animation-fill-mode: forwards;
+        }
+    }
+    i {
+        position: relative;
+        font-style: normal;
+        display: inline-block;
+        width: 24px;
+        text-align: center;
+    }
+    .hover-field {
+        position: absolute;
+        top: 28px;
+        left: 28px;
+        border-radius: 28px;
+    }
+    &.primary {
+        background-color: $primary-color;
+        color: $white-color;
+        .hover-field {
+            background-color: $dark-primary;
+        }
+    }
+    &.secondary {
+        background-color: $white-color;
+        color: $grey-color;
+        .hover-field {
+            background-color: $light-grey;
+        }
+    }
+    &:focus {
+        outline: 0;
+    }
+    &:active .hover-field {
+        animation-name: buttonHoverAnimation;
+        animation-duration: 0.5s;
+        animation-fill-mode: forwards;
+    }
+    img {
+        height: 24px;
+        width: 24px;
+        transform: rotate(0deg);
+    }
 }
 
 @keyframes buttonHoverAnimation {
@@ -83,12 +88,6 @@ $black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
     }
 }
 
-:host.min:active .hover-field {
-    animation-name: buttonMinHoverAnimation;
-    animation-duration: 0.5s;
-    animation-fill-mode: forwards;
-}
-
 @keyframes buttonMinHoverAnimation {
     0% {
         height: 0;
@@ -111,20 +110,4 @@ $black-shaddow: rgba(0, 0, 0, 0.3) 0 3px 2px;
         margin-left: -20px;
         opacity: 0;
     }
-}
-
-:host.primary {
-    background-color: $primary-color;
-    color: $white-color;
-}
-
-:host.secondary {
-    background-color: $white-color;
-    color: $grey-color;
-}
-
-:host img {
-    height: 24px;
-    width: 24px;
-    transform: rotate(0deg);
 }

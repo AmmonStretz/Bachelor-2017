@@ -16,9 +16,9 @@ export class OsmConnectionService {
   public getNearestWayFromAdress(x: number, y: number, a: number, postal_code: string, name: string) {
     const node = 'way[highway][postal_code="' + postal_code + '"]' +
       '[name="' + name + '"]' + OsmConnectionService.getCoordBlock(x, y, a);
-    return this.http.get(osm_url + node + 'out;')
+    return this.http.get(osm_url + node + '(._;>;);out;')
       .map((res) => {
-        if (res.json().elements.length === 0) {
+        if (res.json().elements.length > 0) {
           return res.json().elements;
         }
         return null;
