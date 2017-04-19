@@ -51,15 +51,14 @@ export class MapManagementService {
     return Math.sqrt((coord.lon - x) * (coord.lon - x) + (coord.lat - y) * (coord.lat - y));
   }
 
-  public drawMarker(coord: Coordinate): void {
+  public drawMarker(node: Node): void {
     const marker = document.getElementById('marker');
     marker.style.display = 'block';
     const overlay = new Overlay({
       id: 1,
-      position: proj.fromLonLat(coord),
+      position: proj.fromLonLat([node.lon, node.lat]),
       element: marker
     });
-    // console.log(this.map.getOverlayById(1));
     this.map.removeOverlay(this.markerOverlay);
     this.map.addOverlay(overlay);
     this.markerOverlay = overlay;

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
+import { Node } from './../../classes/node';
 
 const osm_url = 'http://overpass-api.de/api//interpreter?data=[out:json];';
 
@@ -13,10 +14,19 @@ export class OsmConnectionService {
   }
   constructor(private http: Http) {
   }
-  public getNearestWayFromAdress(x: number, y: number, a: number, postal_code: string, name: string) {
-    const node = 'way[highway][postal_code="' + postal_code + '"]' +
-      '[name="' + name + '"]' + OsmConnectionService.getCoordBlock(x, y, a);
-    return this.http.get(osm_url + node + '(._;>;);out;')
+  //marker.lon, marker.lat, 0.02, marker.tags['addr:postcode'], marker.tags['addr:street']
+
+  public getNearestWayFromAdress(marker: Node, distance: number){
+    let request_string = 'way[highway]';
+    if(marker.tags['addr:postcode']){
+      request_string += '[postal_code="' + marker.tags['addr:postcode'] + '"]';
+    }
+
+    if(marker.tags['addr:name']){
+      request_string += '[name="' + marker.tags['addr:name'] + '"]';
+    }
+    request_string += OsmConnectionService.getCoordBlock(marker.lon, marker.lat, distance);
+    return this.http.get(osm_url + request_string + '(._;>;);out;')
       .map((res) => {
         if (res.json().elements.length > 0) {
           return res.json().elements;

@@ -3,6 +3,8 @@ import {
   Map, View, Tile, layer, source, control,
   Coordinate, interaction, geom, proj, format, style, Feature, coordinate
 } from 'openlayers';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/Rx';
 import { MapManagementService } from './../../services/map-management/map-management.service';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { RoutingService } from './../../services/routing/routing.service';
@@ -34,17 +36,11 @@ export class MapDirective {
     this.map.on('click', function (event) {
       d.click(event);
     });
-    // this.map.on('pointermove', function (event) {
-    //   const feature = d.map.forEachFeatureAtPixel(event.pixel,
-    //   (feature: Feature) => { return feature; });
-    //   if(feature){
-    //     console.log(feature);
-    //   }
-    // });
 
     // Position Listener added
     navigator.geolocation.watchPosition((position) => {
       this.position = position;
+      console.log(this.position);
       // this.mapManagementService.updatePosition(position);
     }, (error) => { });
   }
@@ -65,35 +61,29 @@ export class MapDirective {
   }
 
   public route(): void {
+
+    console.log('route()');
     if (this.activeMarker) {
-      this.routingService.getNearestPointOnStreet(this.activeMarker);
-      this.mapManagementService.setRoute(this.routingService.generateRoute(
+      this.routingService.generateRoute(
         new Node(null, this.position.coords.longitude, this.position.coords.latitude),
-        new Node(this.activeMarker.id, this.activeMarker.lon, this.activeMarker.lat)
-      ));
+        this.activeMarker
+      ).map((res) => { this.mapManagementService.setRoute(res) }).subscribe(() => { });
     }
   }
 
   public click(event) {
-      console.log(this.activeMarker);
-    const feature = this.map.forEachFeatureAtPixel(event.pixel,
-      (feature) => { return feature; });
-    if (feature) {
-      console.log("You clicked on it");
-    } else {
-      // set new Endpoint
-      const coord = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
-      this.routingService.getNearestAdressNode(coord, (nearest) => {
+    // const feature = this.map.forEachFeatureAtPixel(event.pixel,
+    //   (feature) => { return feature; });
+    // if (feature) {
+
+    this.routingService.getNearestAdressNode(
+      proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326'),
+      (nearest: Node) => {
         this.mapManagementService.removeRouteLayer();
 
-        this.activeMarker = new Node(nearest.id, nearest.lon, nearest.lat, nearest.tags);
-        this.mapManagementService.drawMarker([this.activeMarker.lon, this.activeMarker.lat]);
+        this.activeMarker = nearest;
+        this.mapManagementService.drawMarker(this.activeMarker);
         MapManagementService.infos.changeInfo(this.activeMarker);
       });
-      // MapManagementService.setMarker(a[0], a[1]);
-    }
-  }
-  private getDistToPoint(coord: any, x: number, y: number): number {
-    return Math.sqrt((coord.lon - x) * (coord.lon - x) + (coord.lat - y) * (coord.lat - y));
   }
 }
