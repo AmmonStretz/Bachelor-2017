@@ -10,8 +10,8 @@ export class Node {
   public lat: number;
   public tags: Object[];
 
-  constructor(id: number, lon: number, lat: number, tags?: Object[]) {
-    this.id = id;
+  constructor(lon: number, lat: number, id?: number, tags?: Object[]) {
+    this.id = id || null;
     this.lon = lon;
     this.lat = lat;
     this.tags = tags || [];

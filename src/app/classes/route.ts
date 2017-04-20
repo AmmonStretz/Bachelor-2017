@@ -9,10 +9,12 @@ export class Route {
 
   public routeNodes: Node[];
   public tags: Object[];
+  public id: number;
 
-  constructor(tags?: Object[]) {
+  constructor(id?: number, tags?: Object[]) {
     this.routeNodes = [];
     this.tags = tags || [];
+    this.id = id || null;
   }
 
   public addNode(node: Node) {

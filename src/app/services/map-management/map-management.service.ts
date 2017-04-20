@@ -17,8 +17,8 @@ export class MapManagementService {
   public static infos: InformationFieldComponent;
 
   public map: Map;
-  private goalLayer: layer.Vector;
   private routeLayer: layer.Vector;
+  private positionLayer: layer.Vector;
   public osmConnection: OsmConnectionService;
   public routingService: RoutingService;
 
@@ -80,17 +80,29 @@ export class MapManagementService {
   }
 
   public updatePosition(position: any): void {
-    const animation = {
-      center: proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
-      zoom: 18,
-      duration: 2000
-    };
-    if (position.coords.heading != null && this.followRotation) {
-      animation['rotation'] = position.coords.heading;
-    }
-    if (this.followPosition) {
-      this.map.getView().animate(animation);
-    }
+    const pl: layer.Vector = new layer.Vector({
+      source: new source.Vector({
+        features: [
+          new Feature({
+            geometry: new geom.Circle(proj.fromLonLat([position.coords.longitude, position.coords.latitude]), 0)
+          , style: Constants.locationPointStyle})]
+      }), style: Constants.locationPointStyle
+    });
+    this.map.removeLayer(this.positionLayer);
+    this.map.addLayer(pl);
+    this.positionLayer = pl;
+    console.log('position updated');
+    // const animation = {
+    //   center: proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
+    //   zoom: 18,
+    //   duration: 2000
+    // };
+    // if (position.coords.heading != null && this.followRotation) {
+    //   animation['rotation'] = position.coords.heading;
+    // }
+    // if (this.followPosition) {
+    //   this.map.getView().animate(animation);
+    // }
   }
 
   public setRoute(route: Route) {

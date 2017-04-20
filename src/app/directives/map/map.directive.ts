@@ -40,8 +40,7 @@ export class MapDirective {
     // Position Listener added
     navigator.geolocation.watchPosition((position) => {
       this.position = position;
-      console.log(this.position);
-      // this.mapManagementService.updatePosition(position);
+      this.mapManagementService.updatePosition(position);
     }, (error) => { });
   }
 
@@ -65,7 +64,7 @@ export class MapDirective {
     console.log('route()');
     if (this.activeMarker) {
       this.routingService.generateRoute(
-        new Node(null, this.position.coords.longitude, this.position.coords.latitude),
+        new Node(this.position.coords.longitude, this.position.coords.latitude),
         this.activeMarker
       ).map((res) => { this.mapManagementService.setRoute(res) }).subscribe(() => { });
     }

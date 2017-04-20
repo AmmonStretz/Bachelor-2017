@@ -9,11 +9,18 @@ export class BoundingBox {
   public southWest: Node;
 
   public routes: Route[];
+  public nodes: Node[];
 
-  public static getBoundigBoxFromCoord(x: number, y: number): BoundingBox {
+  public static generateFromCoord(x: number, y: number): BoundingBox {
     return new BoundingBox(
-      new Node(null, (x + 1) * this.bboxSize, (y + 1) * this.bboxSize),
-      new Node(null, x * this.bboxSize, y * this.bboxSize)
+      new Node((x + 1) * this.bboxSize, (y + 1) * this.bboxSize),
+      new Node(x * this.bboxSize, y * this.bboxSize)
+    );
+  }
+  public static generateFromNode(center: Node, size: number): BoundingBox {
+    return new BoundingBox(
+      new Node(center.lon + 0.5 * size, center.lat + 0.5 * size),
+      new Node(center.lon - 0.5 * size, center.lat - 0.5 * size)
     );
   }
 
@@ -21,6 +28,7 @@ export class BoundingBox {
     this.northEast = northEast;
     this.southWest = southWest;
     this.routes = [];
+    this.nodes = [];
   }
   public toString(): string {
     return '(' + this.southWest.lat + ',' +

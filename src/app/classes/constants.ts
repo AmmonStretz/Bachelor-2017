@@ -21,7 +21,7 @@ export abstract class Constants {
     return new style.Style({
       stroke: new style.Stroke({
         color: 'green',
-        width: 4
+        width: 30
       }),
       fill: new style.Fill({
         color: 'white'
