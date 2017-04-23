@@ -23,4 +23,14 @@ export class Node {
       (this.lat - n1.lat) * (this.lat - n1.lat)
     );
   }
+
+  public add(n: Node): Node {
+    return new Node(this.lon + n.lon, this.lat + n.lat);
+  }
+  public sub(n: Node): Node {
+    return new Node(this.lon - n.lon, this.lat - n.lat);
+  }
+  public mul(n: number): Node {
+    return new Node(this.lon * n, this.lat * n);
+  }
 }

@@ -5,8 +5,7 @@ export class BoundingBox {
 
   public static bboxSize = 0.02;
 
-  public northEast: Node;
-  public southWest: Node;
+  public boxNodes: Node[];
 
   public routes: Route[];
   public nodes: Node[];
@@ -24,16 +23,25 @@ export class BoundingBox {
     );
   }
 
-  constructor(northEast: Node, southWest: Node) {
-    this.northEast = northEast;
-    this.southWest = southWest;
+  constructor(...nds: Node[]) {
+    this.boxNodes = [];
+    nds.forEach(node => {
+      this.boxNodes.push(node);
+    });
     this.routes = [];
     this.nodes = [];
   }
   public toString(): string {
-    return '(' + this.southWest.lat + ',' +
-      this.southWest.lon + ',' +
-      this.northEast.lat + ',' +
-      this.northEast.lon + ');';
+    if (this.boxNodes.length > 2) {
+      let s: string = '(poly:"';
+      this.boxNodes.forEach(node => {
+        s += ' ' + node.lat + ' ' + node.lon;
+      });
+      return s + '");'
+    }
+    return '(' + this.boxNodes[1].lat + ',' +
+      this.boxNodes[1].lon + ',' +
+      this.boxNodes[0].lat + ',' +
+      this.boxNodes[0].lon + ');';
   }
 }

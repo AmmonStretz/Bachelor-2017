@@ -50,7 +50,7 @@ export class RoutingService {
   }
 
   public generateRoute(startMarker: Node, goalMarker: Node): Observable<Route> {
-    this.loadBoundingBox(startMarker);
+    this.loadBoundingBoxes(startMarker, goalMarker);
     const r: Route = new Route();
     return this.getNearestNodeOnStreet(startMarker).flatMap((res_start) => {
       this.startNode = res_start;
@@ -73,25 +73,39 @@ export class RoutingService {
         return RoutingService.calcNearestNodeFromList(res, marker);
       });
   }
-  public loadBoundingBox(start: Node): void {
-    let tmpNode: Node = start;
-    const bboxes:BoundingBox[] = [];
+  public loadBoundingBoxes(start: Node, goal: Node): void {
+    const sgSize = start.getDistToPoint(goal);
+    const stepSize = 0.01;
+    const stepVec = goal.sub(start).mul(stepSize / sgSize);
 
-    Observable.interval(10000).take(10)
-      .flatMap((x) => Observable.timer(1000).map(() => x))
-      .subscribe(x => {
-        let bbox = BoundingBox.generateFromNode(tmpNode, 0.02);
-        tmpNode = new Node(tmpNode.lon + 0.02, tmpNode.lat + 0.02, tmpNode.id);
-        this.osmConnection.osmRequest('way[highway]', bbox).map((res) => {
-          bboxes.push(res);
-        }).subscribe(() => {
-          console.log(bboxes);
+    let a = new Node(start.lon - stepVec.lat - stepVec.lon * 1.5, start.lat + stepVec.lon - stepVec.lat * 1.5);
+    let d = new Node(start.lon + stepVec.lat - stepVec.lon * 1.5, start.lat - stepVec.lon - stepVec.lat * 1.5);
+    let b = a.add(stepVec);
+    let c = d.add(stepVec);
+
+    // solange bis Ziel min. in erster hälfte von bbox
+    // for (let i = 0; i * stepSize < sgSize + 0.5 * stepSize; i++) {
+    //   a = b;
+    //   d = c;
+    //   b = b.add(stepVec);
+    //   c = c.add(stepVec);
+    //   console.log(new BoundingBox(a, b, c, d).toString());
+    //   //console.log(a.lat + ' ' + a.lon + ' ' + b.lat + ' ' + b.lon + ' ' + c.lat + ' ' + c.lon + ' ' + d.lat + ' ' + d.lon);
+    // }
+    let i = 0;
+    const request: Function = (() => {
+      if (i * stepSize < sgSize + 0.5 * stepSize) {
+        a = b;
+        d = c;
+        b = b.add(stepVec);
+        c = c.add(stepVec);
+        this.osmConnection.osmRequest('way[highway]', new BoundingBox(a, b, c, d)).subscribe((res) => {
+          console.log(res.toString());
+          i++;
+          request();
         });
-      });
-    // this.osmConnection.osmRequest('way[highway]', bbox).map(x=>Observable.timer(20000)).map((res) => {
-    //   return res;
-    // }).subscribe((res) => {
-    //   console.log(res.toString());
-    // });
+      }
+    });
+    request();
   }
 }
