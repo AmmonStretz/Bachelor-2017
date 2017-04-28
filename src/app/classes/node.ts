@@ -2,6 +2,7 @@ import {
   Geolocation, Map, View, Tile, layer,
   source, control, interaction, geom, proj, format, style, Feature, Coordinate
 } from 'openlayers';
+import { Edge } from './edge';
 
 export class Node {
 
@@ -9,12 +10,14 @@ export class Node {
   public lon: number;
   public lat: number;
   public tags: Object[];
+  public edges: Edge[];
 
   constructor(lon: number, lat: number, id?: number, tags?: Object[]) {
     this.id = id || null;
     this.lon = lon;
     this.lat = lat;
     this.tags = tags || [];
+    this.edges = [];
   }
 
   public getDistToPoint(n1: Node): number {

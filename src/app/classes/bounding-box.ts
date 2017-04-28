@@ -6,7 +6,7 @@ export class BoundingBox {
   public static bboxSize = 0.02;
 
   public boxNodes: Node[];
-
+  
   public routes: Route[];
   public nodes: Node[];
 
@@ -37,7 +37,7 @@ export class BoundingBox {
       this.boxNodes.forEach(node => {
         s += ' ' + node.lat + ' ' + node.lon;
       });
-      return s + '");'
+      return s + '");';
     }
     return '(' + this.boxNodes[1].lat + ',' +
       this.boxNodes[1].lon + ',' +

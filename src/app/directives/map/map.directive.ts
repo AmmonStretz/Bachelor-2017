@@ -61,12 +61,37 @@ export class MapDirective {
 
   public route(): void {
 
-    console.log('route()');
     if (this.activeMarker) {
-      this.routingService.generateRoute(
-        new Node(this.position.coords.longitude, this.position.coords.latitude),
-        this.activeMarker
-      ).map((res) => { this.mapManagementService.setRoute(res) }).subscribe(() => { });
+      let start: Node;
+      let goal: Node;
+      this.routingService.getNearestNodeOnStreet(
+        new Node(this.position.coords.longitude, this.position.coords.latitude)
+      ).subscribe(
+        (res) => { start = res; },
+        (err) => { },
+        () => {
+          console.log('set start node');
+          this.routingService.getNearestNodeOnStreet(
+            this.activeMarker
+          ).subscribe(
+            (res) => { goal = res; },
+            (err) => { },
+            () => {
+              console.log('set goal node');
+              this.routingService.loadBBoxes(
+                this.routingService.generateBBoxes(start, goal)
+              ).subscribe(
+                () => { },
+                () => { },
+                () => {
+                  console.log('bboxes loaded');
+                  this.mapManagementService.setRoute(
+                    this.routingService.generateRoute(start, goal)
+                  );
+                });
+
+            });
+        });
     }
   }
 

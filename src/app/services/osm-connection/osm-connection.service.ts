@@ -3,38 +3,49 @@ import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
 import { Node } from './../../classes/node';
-import { Route } from './../../classes/route';
+import { Edge } from './../../classes/edge';
+import { Way } from './../../classes/way';
 import { BoundingBox } from './../../classes/bounding-box';
 
 @Injectable()
 export class OsmConnectionService {
+
+  public static savedNodes: { [key: string]: Node } = {};//Node[] = [];
+  public static savedLines: Way[] = [];
 
   private osm_url = 'http://overpass-api.de/api//interpreter?data=[out:json];';
 
   private static getCoordBlock(node: Node, a: number): string {
     return '(' + (node.lat - a) + ',' + (node.lon - a) + ',' + (node.lat + a) + ',' + (node.lon + a) + ');';
   }
-  constructor(private http: Http) {
-  }
-  public osmRequest(query: string, bbox: BoundingBox): Observable<BoundingBox> {
+
+  constructor(private http: Http) { }
+
+  public osmRequest(query: string, bbox: BoundingBox): Observable<void> {
     const time = new Date().getTime();
     return this.http.get(this.osm_url + query + bbox.toString() + '(._;>;);out;')
       .map((res) => {
         const elements = res.json().elements;
         elements.forEach(el => {
           if (el.type === 'node') {
-            bbox.nodes[el.id] = new Node(el.lon, el.lat, el.id, el.tags);
+            OsmConnectionService.savedNodes[el.id] = new Node(el.lon, el.lat, el.id, el.tags);
           } else if (el.type === 'way') {
-            const route: Route = new Route(el.id, el.tags);
-            el.nodes.forEach(id => {
-              //vorhandensein testen !!!
-              route.addNode(bbox.nodes[id]);
-            });
-            bbox.routes.push(route);
+            const way: Way = new Way(el.id, el.tags);
+            way.addNode(OsmConnectionService.savedNodes[el.nodes[0]]);
+            for (let i = 0; i < el.nodes.length - 1; i++) {
+              way.addNode(OsmConnectionService.savedNodes[el.nodes[i + 1]]);
+              // TODO: check el.tags.oneway
+              OsmConnectionService.savedNodes[el.nodes[i]].edges.push(
+                new Edge(OsmConnectionService.savedNodes[el.nodes[i + 1]], way)
+              );
+              OsmConnectionService.savedNodes[el.nodes[i + 1]].edges.push(
+                new Edge(OsmConnectionService.savedNodes[el.nodes[i]], way)
+              );
+            }
+            OsmConnectionService.savedLines.push(way);
           }
         });
         console.log('osmRequest time: ' + (new Date().getTime() - time) / 1000 + ' sec');
-        return bbox;
       });
   }
 
