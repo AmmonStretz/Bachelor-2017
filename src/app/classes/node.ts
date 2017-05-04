@@ -12,6 +12,10 @@ export class Node {
   public tags: Object[];
   public edges: Edge[];
 
+  public distance: number = Infinity;
+  public predecessor_id: number = null;
+  public visited: boolean = false;
+
   constructor(lon: number, lat: number, id?: number, tags?: Object[]) {
     this.id = id || null;
     this.lon = lon;

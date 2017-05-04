@@ -11,6 +11,7 @@ import { BoundingBox } from './../../classes/bounding-box';
 export class OsmConnectionService {
 
   public static savedNodes: { [key: string]: Node } = {};//Node[] = [];
+  public static savedNodesLength: number = 0;
   public static savedLines: Way[] = [];
 
   private osm_url = 'http://overpass-api.de/api//interpreter?data=[out:json];';
@@ -21,18 +22,24 @@ export class OsmConnectionService {
 
   constructor(private http: Http) { }
 
-  public osmRequest(query: string, bbox: BoundingBox): Observable<void> {
+  public getBoundingBox(query: string, bbox: BoundingBox): Observable<void> {
     const time = new Date().getTime();
     return this.http.get(this.osm_url + query + bbox.toString() + '(._;>;);out;')
       .map((res) => {
         const elements = res.json().elements;
         elements.forEach(el => {
           if (el.type === 'node') {
+            if (!OsmConnectionService.savedNodes[el.id]) {
+              OsmConnectionService.savedNodesLength++;
+            }
             OsmConnectionService.savedNodes[el.id] = new Node(el.lon, el.lat, el.id, el.tags);
           } else if (el.type === 'way') {
             const way: Way = new Way(el.id, el.tags);
             way.addNode(OsmConnectionService.savedNodes[el.nodes[0]]);
             for (let i = 0; i < el.nodes.length - 1; i++) {
+              if (!OsmConnectionService.savedNodes[el.nodes[i + 1]]) {
+                OsmConnectionService.savedNodesLength++;
+              }
               way.addNode(OsmConnectionService.savedNodes[el.nodes[i + 1]]);
               // TODO: check el.tags.oneway
               OsmConnectionService.savedNodes[el.nodes[i]].edges.push(
@@ -49,16 +56,14 @@ export class OsmConnectionService {
       });
   }
 
-  public getNearestWayFromAdress(marker: Node, distance: number): Observable<any> {
+  public getWayFromAdress(marker: Node, distance: number): Observable<any> {
     let filter = 'way[highway]';
-    console.log('marker: ' + marker.tags['addr:postcode']);
-    if (marker.tags['addr:postcode']) {
-      filter += '[postal_code="' + marker.tags['addr:postcode'] + '"]';
-    }
+    filter += (marker.tags['addr:postcode']) ?
+      '[postal_code="' + marker.tags['addr:postcode'] + '"]' : '';
 
-    if (marker.tags['addr:name']) {
-      filter += '[name="' + marker.tags['addr:name'] + '"]';
-    }
+    filter += (marker.tags['addr:name']) ?
+      '[name="' + marker.tags['addr:name'] + '"]' : '';
+
     filter += OsmConnectionService.getCoordBlock(marker, distance);
     return this.http.get(this.osm_url + filter + '(._;>;);out;')
       .map((res) => {
@@ -78,26 +83,4 @@ export class OsmConnectionService {
         return null;
       });
   }
-  // public getNearestNode(node: Node, a: number): Observable<any> {
-
-  //   const filter = 'way[highway]' + OsmConnectionService.getCoordBlock(node, a);
-  //   return this.http.get(this.osm_url + filter + 'node(w);out;')
-  //     .map((res) => {
-  //       if (res.json().elements.length > 0) {
-  //         return res.json().elements;
-  //       }
-  //       return null;
-  //     });
-  // }
-  // public getNearestHighways(node: Node, a: number): Observable<any> {
-
-  //   const filter = 'way[highway]' + OsmConnectionService.getCoordBlock(node, a);
-  //   return this.http.get(this.osm_url + filter + '(._;>;);out;')
-  //     .map((res) => {
-  //       if (res.json().elements.length > 0) {
-  //         return res.json().elements;
-  //       }
-  //       return null;
-  //     });
-  // }
 }

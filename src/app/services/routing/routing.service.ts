@@ -20,7 +20,7 @@ export class RoutingService {
 
   private startNode: Node;
   private goalNode: Node;
-  private loadedBBoxes: BoundingBox[][];
+  private loadedBBoxes: BoundingBox[][] = [];
 
   private static getDistToPoint(a: Node, b: Node): number {
     return Math.sqrt((a.lon - b.lon) * (a.lon - b.lon) + (a.lat - b.lat) * (a.lat - b.lat));
@@ -41,79 +41,86 @@ export class RoutingService {
     return nearest;
   }
 
-  constructor(private osmConnection: OsmConnectionService) {
-    this.loadedBBoxes = [];
-  }
+  constructor(private osmConnection: OsmConnectionService) {}
+
   public getNearestAdressNode(a: number[], subscribe: Function): void {
     this.osmConnection.getNearestAdressNode(new Node(a[0], a[1]), 0.001).subscribe((res) => {
       subscribe(RoutingService.calcNearestNodeFromList(res, new Node(a[0], a[1])));
     });
   }
 
-  public generateRoute(startMarker: Node, goalMarker: Node): Route {
-    //  var controls: { [key: string]: string } = {};
-    // controls['14123414'] = "aaa";
-    // controls['12341515'] = "bbb";
-    // controls['35635636'] = "ccc";
-    // controls['46746776'] = "ddd";
-    // controls['57957959'] = "eee";
-    let a = new Date().getTime();
-    let b = new Date().getTime();
-    let i = 1;
-    for (var k in OsmConnectionService.savedNodes) {
+  public generateRoute(start: Node, goal: Node): Route {
+    console.log('routing');
+
+    // console.log('startid: ' + start.id);
+    // console.log('goalid: ' + goal.id);
+    // console.log();
+    let r: Route = new Route();
+
+    let nodesQueue: Node[] = [];
+    let visitedNodes: Node[] = [];
+    OsmConnectionService.savedNodes[start.id].distance = 0;
+    for (let k in OsmConnectionService.savedNodes) {
       if (OsmConnectionService.savedNodes.hasOwnProperty(k)) {
-        a = new Date().getTime() - a;
-        console.log(OsmConnectionService.savedNodes[k].id + ' ' + a +' '+ i++);
-        a = new Date().getTime();
+        nodesQueue.push(OsmConnectionService.savedNodes[k]);
       }
     }
-    console.log('time: ' + (new Date().getTime() - b));
-    console.log(OsmConnectionService.savedNodes);
-    // OsmConnectionService.savedNodes.forEach(element => {
-    //   console.log(element.id);
-    // });
-    // console.log(OsmConnectionService.savedNodes);
-    const r: Route = new Route();
-    r.addNode(startMarker);
-    r.addNode(goalMarker);
+
+    while (nodesQueue.length > 0) {
+      let nearestId = null;
+      for (let i = 0; i < nodesQueue.length; i++) {
+        if (
+          nearestId == null || nodesQueue[i].distance < nodesQueue[nearestId].distance ) {
+          nearestId = i;
+        }
+      }
+      const pointer: Node = nodesQueue.splice(nearestId, 1)[0];
+      
+      if(pointer.distance == Infinity){
+        break;
+      }
+      visitedNodes.push(pointer);
+
+      // console.log(pointer.id);
+      pointer.edges.forEach(edge => {
+        const tmpDist: number = pointer.distance + pointer.getDistToPoint(edge.node);
+        if (!edge.node.distance || edge.node.distance > tmpDist) {
+          edge.node.distance = tmpDist;
+          edge.node.predecessor_id = pointer.id;
+        }
+      });
+    }
+
+    // console.log(visitedNodes);
+    // console.log(nodesQueue);
+    // TODO Bugfixing
+    let p: Node = OsmConnectionService.savedNodes[goal.id];
+    r.addNode(p);
+    while (p.predecessor_id != start.id) {
+      // console.log(p.id);
+      p = OsmConnectionService.savedNodes[p.predecessor_id];
+      r.addNode(p);
+    }
+    r.routeNodes.reverse();
     return r;
 
-    // return this.getNearestNodeOnStreet(startMarker).flatMap((res_start) => {
-    //   this.startNode = res_start;
-    //   return this.getNearestNodeOnStreet(goalMarker).map((res_goal) => {
-    //     this.goalNode = res_goal;
-    //   });
-    // }).flatMap((a) => {
-    //   return this.loadBBoxes(this.generateBBoxes(startMarker, goalMarker)).map((res) => {
-    //     return res;
-    //   });
-    // }).map((res) => {
-    //   console.log('res: ');
-    //   console.log(res);
-
-    //   r.addNode(this.goalNode);
-    //   r.addNode(res['2824824744']);
-    //   r.addNode(this.startNode);
-    //   // console.log(res[this.startNode.id]);
-    //   return r;
-    // });
   }
 
   public getNearestNodeOnStreet(marker: Node): Observable<Node> {
     const returnValue: Node = null;
     return this.osmConnection
-      .getNearestWayFromAdress(
+      .getWayFromAdress(
       marker, 0.001)
       .map((res) => {
         return RoutingService.calcNearestNodeFromList(res, marker);
       });
   }
   public loadBBoxes(notLoadedBBoxes: BoundingBox[]): Observable<Node[]> {
-    const filter = 'way[highway]';
+    const filter = 'way[highway][bicycle!="no"]';
 
     return Observable.create((obs: Observer<Observable<any>>) => {
       notLoadedBBoxes.forEach(bbox => {
-        obs.next(this.osmConnection.osmRequest(filter, bbox));
+        obs.next(this.osmConnection.getBoundingBox(filter, bbox));
       });
       obs.complete();
     }).flatMap((res) => {
@@ -121,18 +128,6 @@ export class RoutingService {
     }).delay(10000).map((res) => {
       return OsmConnectionService.savedNodes;
     })
-    // return Observable.create((obs: Observer<Observable<any>>) => {
-    //   notLoadedBBoxes.forEach(bbox => {
-    //     obs.next(this.osmConnection.osmRequest(filter, bbox));
-    //   });
-    //   obs.complete();
-    // }).flatMap((res) => {
-    //   return res;
-    // }).map((res) => {
-    //   return OsmConnectionService.savedNodes;
-    // }).do((res)=>{
-    //   return res;
-    // });
   }
   public generateBBoxes(start: Node, goal: Node): BoundingBox[] {
     const boxes: BoundingBox[] = [];
