@@ -8,18 +8,11 @@ import { Constants } from './constants';
 
 export class Way {
 
-  public nodes: Node[];
   public tags: Object[];
   public id: number;
 
   constructor(id?: number, tags?: Object[]) {
-    this.nodes = [];
     this.tags = tags || [];
     this.id = id || null;
   }
-
-  public addNode(node: Node) {
-    this.nodes.push(node);
-  }
-
 }

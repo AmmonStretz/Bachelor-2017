@@ -1,28 +1,19 @@
 import {
-  Geolocation, Map, View, Tile, layer,
-  source, control, interaction, geom, proj, format, style, Feature, Coordinate
+  layer, source, geom, proj, style, Feature
 } from 'openlayers';
 import { Node } from './node';
 import { Constants } from './constants';
 
 export class Route {
 
-  public routeNodes: Node[];
-  public tags: Object[];
-  public id: number;
-
-  constructor(id?: number, tags?: Object[]) {
-    this.routeNodes = [];
-    this.tags = tags || [];
-    this.id = id || null;
-  }
+  public routeNodes: Node[] = [];
 
   public addNode(node: Node) {
     this.routeNodes.push(node);
   }
 
   public generateLayer(): layer.Vector {
-    let coords = [];
+    const coords = [];
     this.routeNodes.forEach(node => {
       coords.push(proj.fromLonLat([node.lon, node.lat]));
     });
@@ -30,7 +21,7 @@ export class Route {
       source: new source.Vector({
         features: [
           new Feature({
-            geometry:  new geom.LineString(coords)
+            geometry: new geom.LineString(coords)
           })]
       }), style: Constants.pointStyle
     });

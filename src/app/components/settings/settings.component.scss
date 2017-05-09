@@ -10,14 +10,15 @@
         h3 {
             margin: 0;
             font-weight: normal;
-            a {
-                padding: 12px;
-                box-sizing: border-box;
-                display: block;
-                &:active {
-                    background-color: #e5e5e5;
-                }
-            }
+            padding: 12px;
+            box-sizing: border-box;
+            display: block;
+        }
+        label {
+            display: block;
+            width: 100%;
+            padding-left: 12px;
+            margin-bottom: 12px;
         }
     }
 }

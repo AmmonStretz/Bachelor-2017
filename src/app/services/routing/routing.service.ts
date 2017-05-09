@@ -17,7 +17,8 @@ import { Constants } from './../../classes/constants';
 @Injectable()
 export class RoutingService {
 
-
+  public static filters: string = '';
+  public static ratings = [];
   private startNode: Node;
   private goalNode: Node;
   private loadedBBoxes: BoundingBox[][] = [];
@@ -41,7 +42,7 @@ export class RoutingService {
     return nearest;
   }
 
-  constructor(private osmConnection: OsmConnectionService) {}
+  constructor(private osmConnection: OsmConnectionService) { }
 
   public getNearestAdressNode(a: number[], subscribe: Function): void {
     this.osmConnection.getNearestAdressNode(new Node(a[0], a[1]), 0.001).subscribe((res) => {
@@ -67,24 +68,26 @@ export class RoutingService {
     }
 
     while (nodesQueue.length > 0) {
+      // console.log(nodesQueue.length + ' ' + visitedNodes.length);
       let nearestId = null;
       for (let i = 0; i < nodesQueue.length; i++) {
         if (
-          nearestId == null || nodesQueue[i].distance < nodesQueue[nearestId].distance ) {
+          nearestId == null || nodesQueue[i].distance < nodesQueue[nearestId].distance) {
           nearestId = i;
         }
       }
       const pointer: Node = nodesQueue.splice(nearestId, 1)[0];
-      
-      if(pointer.distance == Infinity){
-        break;
-      }
+      console.log(nodesQueue.length + ' ' + visitedNodes.length + ' ' + pointer.distance);
+      // if(pointer.id = 4453196450){
+      //   console.log(pointer);
+      // }
+      if (pointer.distance == Infinity) { break; }
       visitedNodes.push(pointer);
 
       // console.log(pointer.id);
       pointer.edges.forEach(edge => {
         const tmpDist: number = pointer.distance + pointer.getDistToPoint(edge.node);
-        if (!edge.node.distance || edge.node.distance > tmpDist) {
+        if (edge.node.distance > tmpDist) {
           edge.node.distance = tmpDist;
           edge.node.predecessor_id = pointer.id;
         }
@@ -97,7 +100,7 @@ export class RoutingService {
     let p: Node = OsmConnectionService.savedNodes[goal.id];
     r.addNode(p);
     while (p.predecessor_id != start.id) {
-      // console.log(p.id);
+      console.log(p);
       p = OsmConnectionService.savedNodes[p.predecessor_id];
       r.addNode(p);
     }
@@ -115,12 +118,12 @@ export class RoutingService {
         return RoutingService.calcNearestNodeFromList(res, marker);
       });
   }
-  public loadBBoxes(notLoadedBBoxes: BoundingBox[]): Observable<Node[]> {
-    const filter = 'way[highway][bicycle!="no"]';
+  public loadBoundingBoxes(notLoadedBBoxes: BoundingBox[]): Observable<Node[]> {
+    const filter = 'way[highway][bicycle!="no"]'+RoutingService.filters;
 
     return Observable.create((obs: Observer<Observable<any>>) => {
       notLoadedBBoxes.forEach(bbox => {
-        obs.next(this.osmConnection.getBoundingBox(filter, bbox));
+        obs.next(this.osmConnection.loadBoundingBox(filter, bbox));
       });
       obs.complete();
     }).flatMap((res) => {

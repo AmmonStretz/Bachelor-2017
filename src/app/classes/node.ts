@@ -14,7 +14,6 @@ export class Node {
 
   public distance: number = Infinity;
   public predecessor_id: number = null;
-  public visited: boolean = false;
 
   constructor(lon: number, lat: number, id?: number, tags?: Object[]) {
     this.id = id || null;

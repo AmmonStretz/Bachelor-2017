@@ -78,7 +78,7 @@ export class MapDirective {
             (err) => { },
             () => {
               console.log('set goal node');
-              this.routingService.loadBBoxes(
+              this.routingService.loadBoundingBoxes(
                 this.routingService.generateBBoxes(start, goal)
               ).subscribe(
                 () => { },
