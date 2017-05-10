@@ -1,5 +1,5 @@
 <div content>
-    <form [formGroup]="myForm" (ngSubmit)="saveSettings(myForm.value)">
+    <form [formGroup]="myForm" (ngSubmit)="saveSettings()">
         <div *ngFor="let tag of myForm.value.list; let i = index" class="property-box">
             <div [formGroupName]="myForm.value.list[i]">
                 <h3>{{myForm.value[myForm.value.list[i]].label}}</h3>
@@ -13,7 +13,7 @@
                 </label>
                 <label *ngIf="myForm.value[myForm.value.list[i]].use && !myForm.value[myForm.value.list[i]].block">
                     bewerten:
-                    <input type="number" formControlName="rating">
+                    <input type="number" step="0.1" formControlName="rating">
                 </label>
             </div>
         </div>

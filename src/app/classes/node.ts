@@ -29,6 +29,15 @@ export class Node {
       (this.lat - n1.lat) * (this.lat - n1.lat)
     );
   }
+  public getEdgeWeight(e1: Edge, settings: any[]): number {
+    let weight = this.getDistToPoint(e1.node);
+    settings.forEach(s => {
+      if (e1.way.tags[s.key] && e1.way.tags[s.key] === s.value) {
+        weight *= s.rating;
+      }
+    });
+    return weight;
+  }
 
   public add(n: Node): Node {
     return new Node(this.lon + n.lon, this.lat + n.lat);

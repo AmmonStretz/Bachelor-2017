@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MapManagementService } from './../../services/map-management/map-management.service';
-
+import { MarkerInformationService } from './../../services/marker-information/marker-information.service';
 
 @Component({
   selector: 'map-information-field',
@@ -17,7 +17,7 @@ export class InformationFieldComponent {
   city: string;
 
   constructor() {
-    MapManagementService.registerInformationField(this);
+    MarkerInformationService.registerInformationField(this);
   }
 
   public changeInfo(chanchedMarker: any) {

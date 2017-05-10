@@ -8,6 +8,8 @@ import 'rxjs/Rx';
 import { MapManagementService } from './../../services/map-management/map-management.service';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { RoutingService } from './../../services/routing/routing.service';
+import { MarkerInformationService } from './../../services/marker-information/marker-information.service';
+
 
 import { Route } from './../../classes/route';
 import { Node } from './../../classes/node';
@@ -17,23 +19,18 @@ import { Node } from './../../classes/node';
 })
 export class MapDirective {
 
-  map: Map;
   mapManagementService: MapManagementService;
   routingService: RoutingService;
   public position: any;
   public activeMarker: Node = null;
 
   constructor(elementRef: ElementRef, private osmConnection: OsmConnectionService) {
-    const mapManagementService = new MapManagementService(elementRef);
-    this.mapManagementService = mapManagementService;
+    this.mapManagementService = new MapManagementService(elementRef);
     this.routingService = new RoutingService(osmConnection);
-    this.mapManagementService.osmConnection = osmConnection;
-    this.mapManagementService.routingService = new RoutingService(osmConnection);
-    this.map = this.mapManagementService.map;
 
     let d: MapDirective = this;
     // onClick Listener added
-    this.map.on('click', function (event) {
+    this.mapManagementService.map.on('click', function (event) {
       d.click(event);
     });
 
@@ -96,10 +93,6 @@ export class MapDirective {
   }
 
   public click(event) {
-    // const feature = this.map.forEachFeatureAtPixel(event.pixel,
-    //   (feature) => { return feature; });
-    // if (feature) {
-
     this.routingService.getNearestAdressNode(
       proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326'),
       (nearest: Node) => {
@@ -107,7 +100,7 @@ export class MapDirective {
 
         this.activeMarker = nearest;
         this.mapManagementService.drawMarker(this.activeMarker);
-        MapManagementService.infos.changeInfo(this.activeMarker);
+        MarkerInformationService.infos.changeInfo(this.activeMarker);
       });
   }
 }

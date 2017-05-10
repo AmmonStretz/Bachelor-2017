@@ -6,7 +6,7 @@ export abstract class Constants {
     return new style.Style({
       stroke: new style.Stroke({
         color: '#33691e',
-        width: 15
+        width: 8
       })
     });
   }

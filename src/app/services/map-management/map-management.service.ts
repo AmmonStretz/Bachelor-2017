@@ -4,36 +4,19 @@ import {
   Geolocation, Map, View, Tile, layer,
   source, control, interaction, geom, proj, format, style, Feature, Coordinate, Overlay
 } from 'openlayers';
-import { RoutingService } from './../../services/routing/routing.service';
-import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { Constants } from './../../classes/constants';
 import { Route } from './../../classes/route';
 import { Node } from './../../classes/node';
-import { InformationFieldComponent } from './../../components/information-field/information-field.component'
 
 @Injectable()
 export class MapManagementService {
 
-  public static infos: InformationFieldComponent;
-
   public map: Map;
   private routeLayer: layer.Vector;
   private positionLayer: layer.Vector;
-  public osmConnection: OsmConnectionService;
-  public routingService: RoutingService;
 
-  // public position: any;
-
-  public followPosition = false;
-  public followZoom = false;
-  public followRotation = false;
-
-  // public activeMarker = null;
   public markerOverlay = null;
 
-  public static registerInformationField(infos: InformationFieldComponent) {
-    this.infos = infos;
-  }
   constructor(elementRef: ElementRef) {
     this.map = new Map({
       layers: [new layer.Tile({ source: new source.OSM() })],
@@ -92,17 +75,6 @@ export class MapManagementService {
     this.map.addLayer(pl);
     this.positionLayer = pl;
     console.log('position updated');
-    // const animation = {
-    //   center: proj.fromLonLat([position.coords.longitude, position.coords.latitude]),
-    //   zoom: 18,
-    //   duration: 2000
-    // };
-    // if (position.coords.heading != null && this.followRotation) {
-    //   animation['rotation'] = position.coords.heading;
-    // }
-    // if (this.followPosition) {
-    //   this.map.getView().animate(animation);
-    // }
   }
 
   public setRoute(route: Route) {

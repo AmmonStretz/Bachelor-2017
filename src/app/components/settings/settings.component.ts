@@ -25,17 +25,14 @@ export class SettingsComponent implements OnInit {
     use: true,
     block: false,
     rating: 1.0
+  }, {
+    title: 'Treppen',
+    key: 'highway',
+    value: 'steps',
+    use: true,
+    block: true,
+    rating: 1.0
   }];
-
-  constructor() { }
-
-  // ngOnInit() {
-  //   console.log(form);
-  //   // document.cookie = 'highway_footway=2;';
-  //   // document.cookie = 'c2=content2;';
-  //   // document.cookie = 'c3=content3;';
-  //   this.loadCookie();
-  // }
 
   ngOnInit() {
 
@@ -65,6 +62,8 @@ export class SettingsComponent implements OnInit {
         }
       }
     });
+    // console.log('RoutingService.ratings');
+    // console.log(RoutingService.ratings);
   }
 
   private addControl(
@@ -84,9 +83,8 @@ export class SettingsComponent implements OnInit {
       }));
   }
 
-  private saveSettings(a) {
+  private saveSettings() {
     this.myForm.controls['list'].value.forEach(name => {
-      console.log(name);
       const key = this.myForm.controls[name].value.info.key;
       const value = this.myForm.controls[name].value.info.value;
       document.cookie = key + '_' + value + '_use=' +
@@ -99,7 +97,7 @@ export class SettingsComponent implements OnInit {
         this.myForm.controls[name].value.rating + ';';
     });
     this.loadCookie();
-    console.log(this.structure);
+    // console.log(this.structure);
     // this.updateRoutingSettings();
   }
 

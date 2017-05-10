@@ -51,6 +51,7 @@ export class RoutingService {
   }
 
   public generateRoute(start: Node, goal: Node): Route {
+    console.log(RoutingService.ratings);
     console.log('routing');
 
     // console.log('startid: ' + start.id);
@@ -77,7 +78,7 @@ export class RoutingService {
         }
       }
       const pointer: Node = nodesQueue.splice(nearestId, 1)[0];
-      console.log(nodesQueue.length + ' ' + visitedNodes.length + ' ' + pointer.distance);
+      // console.log(nodesQueue.length + ' ' + visitedNodes.length + ' ' + pointer.distance);
       // if(pointer.id = 4453196450){
       //   console.log(pointer);
       // }
@@ -86,7 +87,7 @@ export class RoutingService {
 
       // console.log(pointer.id);
       pointer.edges.forEach(edge => {
-        const tmpDist: number = pointer.distance + pointer.getDistToPoint(edge.node);
+        const tmpDist: number = pointer.distance + pointer.getEdgeWeight(edge, RoutingService.ratings);//.getDistToPoint(edge.node);
         if (edge.node.distance > tmpDist) {
           edge.node.distance = tmpDist;
           edge.node.predecessor_id = pointer.id;
