@@ -2,7 +2,7 @@
     <form [formGroup]="myForm" (ngSubmit)="saveSettings()">
         <div *ngFor="let tag of myForm.value.list; let i = index" class="property-box">
             <div [formGroupName]="myForm.value.list[i]">
-                <h3>{{myForm.value[myForm.value.list[i]].label}}</h3>
+                <h3>{{myForm.value[myForm.value.list[i]].title}}</h3>
                 <label>
                     betrachten:
                     <input type="checkbox" formControlName="use">
@@ -24,14 +24,3 @@
         </div>
     </form>
 </div>
-
-
-<!--<div class="container">
-  <form [formGroup]="myForm" novalidate (ngSubmit)="save(myForm.value, myForm.valid)">
-    <div class="form-group">
-      <label for="">Name</label>
-      <input type="text" class="form-control" formControlName="name">
-    </div>
-    <button type="submit" class="btn btn-default">Submit</button>
-  </form>
-</div>-->

@@ -8,5 +8,5 @@
 <div id="marker" (click)="info.toggle()">
     place
 </div>
-<map-settings *ngIf="settingsVisible"></map-settings>
+<map-settings class="{{settingsVisible?'visible':'hidden'}}"></map-settings>
 <header map-navigation (click)="settingsVisible = !settingsVisible"></header>

@@ -1,24 +1,30 @@
 @import "./../../../styles.scss";
-:host div[content] {
-    width: 100%;
-    min-height: calc(100vh - 88px);
-    background: $light-grey;
-    box-sizing: border-box;
-    box-shadow: $black-shaddow;
-    .property-box {
-        border-bottom: #dddddd 1px solid;
-        h3 {
-            margin: 0;
-            font-weight: normal;
-            padding: 12px;
-            box-sizing: border-box;
-            display: block;
-        }
-        label {
-            display: block;
-            width: 100%;
-            padding-left: 12px;
-            margin-bottom: 12px;
+:host.hidden {
+    display: none;
+}
+
+:host {
+    div[content] {
+        width: 100%;
+        min-height: calc(100vh - 88px);
+        background: $light-grey;
+        box-sizing: border-box;
+        box-shadow: $black-shaddow;
+        .property-box {
+            border-bottom: #dddddd 1px solid;
+            h3 {
+                margin: 0;
+                font-weight: normal;
+                padding: 12px;
+                box-sizing: border-box;
+                display: block;
+            }
+            label {
+                display: block;
+                width: 100%;
+                padding-left: 12px;
+                margin-bottom: 12px;
+            }
         }
     }
 }

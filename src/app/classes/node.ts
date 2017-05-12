@@ -4,6 +4,8 @@ import {
 } from 'openlayers';
 import { Edge } from './edge';
 
+import { Setting } from './setting';
+
 export class Node {
 
   public id: number;
@@ -29,7 +31,7 @@ export class Node {
       (this.lat - n1.lat) * (this.lat - n1.lat)
     );
   }
-  public getEdgeWeight(e1: Edge, settings: any[]): number {
+  public getEdgeWeight(e1: Edge, settings: Setting[]): number {
     let weight = this.getDistToPoint(e1.node);
     settings.forEach(s => {
       if (e1.way.tags[s.key] && e1.way.tags[s.key] === s.value) {

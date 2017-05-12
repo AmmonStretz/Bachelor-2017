@@ -5,8 +5,8 @@ export abstract class Constants {
   public static get pointStyle(): style.Style {
     return new style.Style({
       stroke: new style.Stroke({
-        color: '#33691e',
-        width: 8
+        color: 'black',
+        width: 5
       })
     });
   }

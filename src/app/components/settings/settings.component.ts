@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ElementRef } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, FormArray } from '@angular/forms';
 import { RoutingService } from '../../services/routing/routing.service';
-
+import { Setting } from './../../classes/setting';
 @Component({
   selector: 'map-settings',
   templateUrl: './settings.component.html',
@@ -11,31 +11,9 @@ export class SettingsComponent implements OnInit {
 
   public myForm: FormGroup;
   public list: FormArray;
-  private structure = [{
-    title: 'Fußgängerwege',
-    key: 'highway',
-    value: 'footway',
-    use: false,
-    block: false,
-    rating: 0.0
-  }, {
-    title: 'Pflasterstein',
-    key: 'surface',
-    value: 'cobblestone',
-    use: true,
-    block: false,
-    rating: 1.0
-  }, {
-    title: 'Treppen',
-    key: 'highway',
-    value: 'steps',
-    use: true,
-    block: true,
-    rating: 1.0
-  }];
+  private settings: Setting[] = Setting.default_settings;
 
   ngOnInit() {
-
     this.loadCookie();
 
     this.list = new FormArray([]);
@@ -43,8 +21,8 @@ export class SettingsComponent implements OnInit {
       list: this.list
     });
 
-    this.structure.forEach(s => {
-      this.addControl(s.title, s.use, s.block, s.rating, s.key, s.value);
+    this.settings.forEach(s => {
+      this.addControl(s);
     });
 
     this.updateRoutingSettings();
@@ -53,7 +31,7 @@ export class SettingsComponent implements OnInit {
   private updateRoutingSettings() {
     RoutingService.ratings = [];
     RoutingService.filters = '';
-    this.structure.forEach(s => {
+    this.settings.forEach(s => {
       if (s.use) {
         if (!s.block) {
           RoutingService.ratings.push(s);
@@ -62,24 +40,19 @@ export class SettingsComponent implements OnInit {
         }
       }
     });
-    // console.log('RoutingService.ratings');
-    // console.log(RoutingService.ratings);
   }
 
-  private addControl(
-    title: string, use: boolean, block: boolean,
-    rating: number, key: string, value: string
-  ) {
+  private addControl(setting: Setting) {
     const name = 'ctrl_' + this.list.length;
     this.list.push(new FormControl(name));
 
     this.myForm.addControl(name,
       new FormGroup({
-        label: new FormControl(title),
-        use: new FormControl(use),
-        block: new FormControl(block),
-        rating: new FormControl(rating),
-        info: new FormControl({ key: key, value: value }),
+        title: new FormControl(setting.title),
+        use: new FormControl(setting.use),
+        block: new FormControl(setting.block),
+        rating: new FormControl(setting.rating),
+        info: new FormControl({ key: setting.key, value: setting.value }),
       }));
   }
 
@@ -97,41 +70,30 @@ export class SettingsComponent implements OnInit {
         this.myForm.controls[name].value.rating + ';';
     });
     this.loadCookie();
-    // console.log(this.structure);
-    // this.updateRoutingSettings();
   }
 
   private loadCookie() {
-    const map = [];
-    //read old Cookies
+    const cookies = [];
+    //read Cookies
     document.cookie.split(';').forEach(c => {
       const tmp = c.split('=');
       if (tmp.length === 2) {
         if (tmp[0].charAt(0) === ' ') {
           tmp[0] = tmp[0].substr(1, tmp[0].length - 1);
         }
-        map[tmp[0]] = tmp[1];
+        cookies[tmp[0]] = tmp[1];
       }
     });
-    // overwride structure with old Cookies
-    this.structure.forEach(str => {
-      const kv = str.key + '_' + str.value;
-      if (map[kv + '_rating']) {
-        str.rating = Number(map[kv + '_rating']);
+    // overwride settings with Cookies
+    this.settings.forEach(setting => {
+      if (cookies[setting.getRatingKey()]) {
+        setting.rating = Number(cookies[setting.getRatingKey()]);
       }
-      if (map[kv + '_use']) {
-        if (map[kv + '_use'] === 'true') {
-          str.use = true;
-        } else {
-          str.use = false;
-        }
+      if (cookies[setting.getUseKey()]) {
+        setting.use = cookies[setting.getUseKey()] === 'true';
       }
-      if (map[kv + '_block']) {
-        if (map[kv + '_block'] === 'true') {
-          str.block = true;
-        } else {
-          str.block = false;
-        }
+      if (cookies[setting.getBlockKey()]) {
+          setting.block = cookies[setting.getBlockKey()] === 'true';
       }
     });
     this.updateRoutingSettings();

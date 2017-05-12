@@ -13,12 +13,13 @@ import { Route } from './../../classes/route';
 import { Node } from './../../classes/node';
 import { BoundingBox } from './../../classes/bounding-box';
 import { Constants } from './../../classes/constants';
+import { Setting } from './../../classes/setting';
 
 @Injectable()
 export class RoutingService {
 
   public static filters: string = '';
-  public static ratings = [];
+  public static ratings: Setting[] = [];
   private startNode: Node;
   private goalNode: Node;
   private loadedBBoxes: BoundingBox[][] = [];
