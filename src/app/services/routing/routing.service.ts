@@ -20,9 +20,10 @@ export class RoutingService {
 
   public static filters: string = '';
   public static ratings: Setting[] = [];
-  private startNode: Node;
-  private goalNode: Node;
+  public startNode: Node;
+  public goalNode: Node;
   private loadedBBoxes: BoundingBox[][] = [];
+  private boxSize = 0.001;
 
   private static getDistToPoint(a: Node, b: Node): number {
     return Math.sqrt((a.lon - b.lon) * (a.lon - b.lon) + (a.lat - b.lat) * (a.lat - b.lat));
@@ -46,30 +47,34 @@ export class RoutingService {
   constructor(private osmConnection: OsmConnectionService) { }
 
   public getNearestAdressNode(a: number[], subscribe: Function): void {
-    this.osmConnection.getNearestAdressNode(new Node(a[0], a[1]), 0.001).subscribe((res) => {
+    this.osmConnection.getNearestAdressNode(new Node(a[0], a[1]), this.boxSize).subscribe((res) => {
       subscribe(RoutingService.calcNearestNodeFromList(res, new Node(a[0], a[1])));
     });
   }
 
-  public generateRoute(start: Node, goal: Node): Route {
+  public generateRoute(): Route {
     console.log(RoutingService.ratings);
     console.log('routing');
 
     // console.log('startid: ' + start.id);
     // console.log('goalid: ' + goal.id);
-    // console.log();
     let r: Route = new Route();
 
     let nodesQueue: Node[] = [];
     let visitedNodes: Node[] = [];
-    OsmConnectionService.savedNodes[start.id].distance = 0;
+    OsmConnectionService.savedNodes[this.startNode.id].distance = 0;
     for (let k in OsmConnectionService.savedNodes) {
       if (OsmConnectionService.savedNodes.hasOwnProperty(k)) {
         nodesQueue.push(OsmConnectionService.savedNodes[k]);
       }
     }
+    console.log(OsmConnectionService.savedNodes);
+    console.log(nodesQueue);
 
+    let count = 0;
+    let pointer: Node = OsmConnectionService.savedNodes[this.startNode.id];
     while (nodesQueue.length > 0) {
+      count++;
       // console.log(nodesQueue.length + ' ' + visitedNodes.length);
       let nearestId = null;
       for (let i = 0; i < nodesQueue.length; i++) {
@@ -78,7 +83,7 @@ export class RoutingService {
           nearestId = i;
         }
       }
-      const pointer: Node = nodesQueue.splice(nearestId, 1)[0];
+      pointer = nodesQueue.splice(nearestId, 1)[0];
       // console.log(nodesQueue.length + ' ' + visitedNodes.length + ' ' + pointer.distance);
       // if(pointer.id = 4453196450){
       //   console.log(pointer);
@@ -95,13 +100,14 @@ export class RoutingService {
         }
       });
     }
+    console.log(count);
 
     // console.log(visitedNodes);
     // console.log(nodesQueue);
     // TODO Bugfixing
-    let p: Node = OsmConnectionService.savedNodes[goal.id];
+    let p: Node = OsmConnectionService.savedNodes[this.goalNode.id];
     r.addNode(p);
-    while (p.predecessor_id != start.id) {
+    while (p.predecessor_id != this.startNode.id) {
       console.log(p);
       p = OsmConnectionService.savedNodes[p.predecessor_id];
       r.addNode(p);
@@ -115,13 +121,13 @@ export class RoutingService {
     const returnValue: Node = null;
     return this.osmConnection
       .getWayFromAdress(
-      marker, 0.001)
+      marker, this.boxSize)
       .map((res) => {
         return RoutingService.calcNearestNodeFromList(res, marker);
       });
   }
   public loadBoundingBoxes(notLoadedBBoxes: BoundingBox[]): Observable<Node[]> {
-    const filter = 'way[highway][bicycle!="no"]'+RoutingService.filters;
+    const filter = 'way[highway][bicycle!="no"]' + RoutingService.filters;
 
     return Observable.create((obs: Observer<Observable<any>>) => {
       notLoadedBBoxes.forEach(bbox => {
@@ -130,18 +136,18 @@ export class RoutingService {
       obs.complete();
     }).flatMap((res) => {
       return res;
-    }).delay(10000).map((res) => {
+    }).map((res) => {
       return OsmConnectionService.savedNodes;
     })
   }
-  public generateBBoxes(start: Node, goal: Node): BoundingBox[] {
+  public generateBBoxes(): BoundingBox[] {
     const boxes: BoundingBox[] = [];
-    const sgDist = start.getDistToPoint(goal);
+    const sgDist = this.startNode.getDistToPoint(this.goalNode);
     const stepSize = 0.01;
-    const stepVec = goal.sub(start).mul(stepSize / sgDist);
+    const stepVec = this.goalNode.sub(this.startNode).mul(stepSize / sgDist);
 
-    let a = new Node(start.lon - stepVec.lat - stepVec.lon * 1.5, start.lat + stepVec.lon - stepVec.lat * 1.5);
-    let d = new Node(start.lon + stepVec.lat - stepVec.lon * 1.5, start.lat - stepVec.lon - stepVec.lat * 1.5);
+    let a = new Node(this.startNode.lon - stepVec.lat - stepVec.lon * 1.5, this.startNode.lat + stepVec.lon - stepVec.lat * 1.5);
+    let d = new Node(this.startNode.lon + stepVec.lat - stepVec.lon * 1.5, this.startNode.lat - stepVec.lon - stepVec.lat * 1.5);
     let b = a.add(stepVec);
     let c = d.add(stepVec);
     boxes.push(new BoundingBox(a, b, c, d));

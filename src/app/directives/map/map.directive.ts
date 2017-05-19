@@ -24,6 +24,7 @@ export class MapDirective {
   public position: any;
   public activeMarker: Node = null;
 
+
   constructor(elementRef: ElementRef, private osmConnection: OsmConnectionService) {
     this.mapManagementService = new MapManagementService(elementRef);
     this.routingService = new RoutingService(osmConnection);
@@ -59,31 +60,29 @@ export class MapDirective {
   public route(): void {
 
     if (this.activeMarker) {
-      let start: Node;
-      let goal: Node;
       this.routingService.getNearestNodeOnStreet(
         new Node(this.position.coords.longitude, this.position.coords.latitude)
       ).subscribe(
-        (res) => { start = res; },
+        (res) => { this.routingService.startNode = res; },
         (err) => { },
         () => {
           console.log('set start node');
           this.routingService.getNearestNodeOnStreet(
             this.activeMarker
           ).subscribe(
-            (res) => { goal = res; },
+            (res) => { this.routingService.goalNode = res; },
             (err) => { },
             () => {
               console.log('set goal node');
               this.routingService.loadBoundingBoxes(
-                this.routingService.generateBBoxes(start, goal)
+                this.routingService.generateBBoxes()
               ).subscribe(
                 () => { },
                 () => { },
                 () => {
                   console.log('bboxes loaded');
                   this.mapManagementService.setRoute(
-                    this.routingService.generateRoute(start, goal)
+                    this.routingService.generateRoute()
                   );
                 });
 

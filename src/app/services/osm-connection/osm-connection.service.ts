@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, ConnectionBackend } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/Rx';
 import { Node } from './../../classes/node';
@@ -18,15 +18,16 @@ export class OsmConnectionService {
     return '(' + (node.lat - a) + ',' + (node.lon - a) + ',' + (node.lat + a) + ',' + (node.lon + a) + ');';
   }
 
-  constructor(private http: Http) { }
+  constructor(private http: Http) {}
 
   public loadBoundingBox(query: string, bbox: BoundingBox): Observable<void> {
+    console.log(bbox.toString());
     const time = new Date().getTime();
     return this.http.get(this.osm_url + query + bbox.toString() + '(._;>;);out;')
       .map((res) => {
         const elements = res.json().elements;
         elements.forEach(el => {
-          if (el.type === 'node') {
+          if (el.type === 'node' && !(el.id in OsmConnectionService.savedNodes)) {
             OsmConnectionService.savedNodes[el.id] = new Node(el.lon, el.lat, el.id, el.tags);
           } else if (el.type === 'way') {
             const way: Way = new Way(el.id, el.tags);

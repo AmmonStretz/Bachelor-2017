@@ -3,7 +3,14 @@ export class Setting {
   public static default_settings = [
     new Setting('Fußgängerwege', 'highway', 'footway'),
     new Setting('Treppen', 'highway', 'steps'),
-    new Setting('Pflasterstein', 'surface', 'cobblestone')
+    new Setting('Naturstein Pflasterstein', 'surface', 'cobblestone'),
+    new Setting('Alsphalt', 'surface', 'asphalt'),
+    new Setting('Beton', 'surface', 'concrete'),
+    new Setting('Beton Pflasterstein', 'surface', 'paving_stones'),
+    new Setting('Unbefestigte Straßen', 'surface', 'dirt'),
+    new Setting('Gras', 'surface', 'grass'),
+    new Setting('Schotter', 'surface', 'gravel'),
+    new Setting('Sand', 'surface', 'sand')
   ];
 
   public title: string;

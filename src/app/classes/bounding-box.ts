@@ -6,7 +6,6 @@ export class BoundingBox {
   public static bboxSize = 0.02;
 
   public boxNodes: Node[];
-  
   public routes: Route[];
   public nodes: Node[];
 
