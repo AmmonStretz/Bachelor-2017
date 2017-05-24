@@ -7,23 +7,19 @@ import { Edge } from './../../classes/edge';
 import { Way } from './../../classes/way';
 import { BoundingBox } from './../../classes/bounding-box';
 
+const osm_url = 'http://overpass-api.de/api//interpreter?data=[out:json];';
+
 @Injectable()
 export class OsmConnectionService {
 
   public static savedNodes: { [key: string]: Node } = {};
 
-  private osm_url = 'http://overpass-api.de/api//interpreter?data=[out:json];';
-
-  private static getCoordBlock(node: Node, a: number): string {
-    return '(' + (node.lat - a) + ',' + (node.lon - a) + ',' + (node.lat + a) + ',' + (node.lon + a) + ');';
-  }
-
   constructor(private http: Http) {}
 
   public loadBoundingBox(query: string, bbox: BoundingBox): Observable<void> {
-    console.log(bbox.toString());
+    // console.log(bbox.toString());
     const time = new Date().getTime();
-    return this.http.get(this.osm_url + query + bbox.toString() + '(._;>;);out;')
+    return this.http.get(osm_url + query + bbox.toString() + '(._;>;);out;')
       .map((res) => {
         const elements = res.json().elements;
         elements.forEach(el => {
@@ -53,14 +49,14 @@ export class OsmConnectionService {
     filter += (center.tags['addr:name']) ?
       '[name="' + center.tags['addr:name'] + '"]' : '';
 
-    filter += OsmConnectionService.getCoordBlock(center, distance);
-    return this.http.get(this.osm_url + filter + '(._;>;);out;')
+    filter += BoundingBox.generateFromNode(center, distance).toString();
+    return this.http.get(osm_url + filter + '(._;>;);out;')
       .map((res) => res.json().elements);
   }
-  public getNearestAdressNode(node: Node, distance: number): Observable<any> {
-    const filter = 'node["addr:street"]' +
-      OsmConnectionService.getCoordBlock(node, distance);
-    return this.http.get(this.osm_url + filter + '(._;>;);out;')
+  public getAdressNodes(center: Node, distance: number): Observable<any> {
+    const filter = 'node["addr:street"]'
+    + BoundingBox.generateFromNode(center, distance).toString();
+    return this.http.get(osm_url + filter + '(._;>;);out;')
       .map((res) => res.json().elements);
   }
 }

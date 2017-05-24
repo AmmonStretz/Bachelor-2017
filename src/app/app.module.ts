@@ -15,6 +15,7 @@ import { MapManagementService } from './services/map-management/map-management.s
 import { OsmConnectionService } from './services/osm-connection/osm-connection.service';
 import { MapViewComponent } from './components/map-view/map-view.component';
 import { InformationFieldComponent } from './components/information-field/information-field.component';
+import { StatusComponent } from './components/status/status.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { InformationFieldComponent } from './components/information-field/inform
     SettingsComponent,
     MapDirective,
     MapViewComponent,
-    InformationFieldComponent
+    InformationFieldComponent,
+    StatusComponent
 ],
   imports: [
     BrowserModule,

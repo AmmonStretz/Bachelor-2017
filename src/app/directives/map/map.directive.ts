@@ -9,10 +9,11 @@ import { MapManagementService } from './../../services/map-management/map-manage
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { RoutingService } from './../../services/routing/routing.service';
 import { MarkerInformationService } from './../../services/marker-information/marker-information.service';
-
+import { StatusComponent } from './../../components/status/status.component';
 
 import { Route } from './../../classes/route';
 import { Node } from './../../classes/node';
+import { BoundingBox } from './../../classes/bounding-box';
 
 @Directive({
   selector: '[map]'
@@ -44,7 +45,6 @@ export class MapDirective {
 
   public locate(): void {
     if (this.position != null) {
-      // console.log(this.position.coords);
       this.mapManagementService.goToLocation(this.position.coords)
     }
   }
@@ -60,30 +60,35 @@ export class MapDirective {
   public route(): void {
 
     if (this.activeMarker) {
+      StatusComponent.setStatus('my_location', 'loading start node');
       this.routingService.getNearestNodeOnStreet(
         new Node(this.position.coords.longitude, this.position.coords.latitude)
       ).subscribe(
         (res) => { this.routingService.startNode = res; },
-        (err) => { },
+        (err) => { StatusComponent.setError('while loading start node'); },
         () => {
-          console.log('set start node');
+          StatusComponent.setStatus('place', 'loading goal node');
           this.routingService.getNearestNodeOnStreet(
             this.activeMarker
           ).subscribe(
             (res) => { this.routingService.goalNode = res; },
-            (err) => { },
+            (err) => { StatusComponent.setError('while loading goal node'); },
             () => {
-              console.log('set goal node');
+              StatusComponent.setStatus('get_app', 'load data');
               this.routingService.loadBoundingBoxes(
-                this.routingService.generateBBoxes()
+                BoundingBox.generateBBoxes(
+                  this.routingService.startNode,
+                  this.routingService.goalNode
+                )
               ).subscribe(
-                () => { },
-                () => { },
+                (res) => { },
+                (err) => { StatusComponent.setError('while loading OSM data'); },
                 () => {
-                  console.log('bboxes loaded');
+                  StatusComponent.setStatus('cached', 'calculate route');
                   this.mapManagementService.setRoute(
                     this.routingService.generateRoute()
                   );
+                  StatusComponent.hide();
                 });
 
             });
@@ -92,14 +97,18 @@ export class MapDirective {
   }
 
   public click(event) {
+    StatusComponent.setStatus('place', 'loading nearest adress node');
+    let position = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
     this.routingService.getNearestAdressNode(
-      proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326'),
-      (nearest: Node) => {
-        this.mapManagementService.removeRouteLayer();
+      position).subscribe((res) => {
 
-        this.activeMarker = nearest;
+        this.mapManagementService.removeRouteLayer();
+        this.activeMarker = new Node(position[0], position[1]).calcNearestNodeFromList(res);
         this.mapManagementService.drawMarker(this.activeMarker);
         MarkerInformationService.infos.changeInfo(this.activeMarker);
-      });
+
+      }, (err) => { StatusComponent.setError('no adress node nearby'); },
+      () => { StatusComponent.hide();}
+      );
   }
 }

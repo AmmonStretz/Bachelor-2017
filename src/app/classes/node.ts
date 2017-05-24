@@ -50,4 +50,17 @@ export class Node {
   public mul(n: number): Node {
     return new Node(this.lon * n, this.lat * n);
   }
+
+   public calcNearestNodeFromList(list: any): Node {
+    let nearest: Node = null;
+    list.forEach(node => {
+      if (node.type === 'node') {
+        const tmpNode = new Node(node.lon, node.lat, node.id);
+        if (nearest == null || this.getDistToPoint(nearest) > this.getDistToPoint(tmpNode)) {
+          nearest = tmpNode;
+        }
+      }
+    });
+    return nearest;
+  }
 }

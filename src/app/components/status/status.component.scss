@@ -1,0 +1,74 @@
+@import "./../../../styles.scss";
+:host {
+    display: none;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 56px);
+    background-color: rgba(255, 255, 255, 0.68);
+    .content {
+        position: absolute;
+        width: 100%;
+        top: calc(50% - 63px);
+        h4 {
+            text-align: center;
+            margin: 0;
+            padding: 16px;
+        }
+        .loadbar {
+            position: relative;
+            background-color: #008000;
+            display: inline-block;
+            text-align: center;
+            border-radius: 50%;
+            overflow: hidden;
+            left: calc(50% - 37px);
+            .bar {
+                position: absolute;
+                background-color: #8bc34a;
+                width: 0%;
+                height: 100%;
+                animation-name: load;
+                animation-duration: 2s;
+                animation-iteration-count: infinite;
+                animation-timing-function: linear;
+            }
+            i.material-icons {
+                position: relative;
+                background-color: #E0E0E0;
+                padding: 10.5px;
+                border-radius: 50%;
+                border: solid white 7px;
+                margin: 7px;
+                font-size: 25px;
+                color: #008000;
+            }
+        }
+        .loadbar.error {
+            background-color: red;
+            .bar {
+                display: none;
+            }
+            i.material-icons {
+                color: red;
+            }
+        }
+    }
+}
+
+@keyframes load {
+    45% {
+        width: 100%;
+        left: 0;
+        background-color: #008000;
+    }
+    90% {
+        left: 100%;
+        width: 100%;
+    }
+    100% {
+        left: 100%;
+        width: 100%;
+    }
+}
