@@ -30,26 +30,21 @@ export class RoutingService {
     return this.osmConnection.getAdressNodes(new Node(a[0], a[1]), this.boxSize);
   }
 
-  public generateRoute(): Route {
+  public dijkstra(): Route {
 
-    const r: Route = new Route();
     const nodesQueue: Node[] = [];
     const visitedNodes: Node[] = [];
 
     OsmConnectionService.savedNodes[this.startNode.id].distance = 0;
-    for (let k in OsmConnectionService.savedNodes) {
+    for (const k in OsmConnectionService.savedNodes) {
       if (OsmConnectionService.savedNodes.hasOwnProperty(k)) {
         nodesQueue.push(OsmConnectionService.savedNodes[k]);
       }
     }
-    console.log(OsmConnectionService.savedNodes);
-    console.log(nodesQueue);
 
-    let count = 0;
     let pointer: Node = OsmConnectionService.savedNodes[this.startNode.id];
-    while (nodesQueue.length > 0) {
-      count++;
-      // console.log(nodesQueue.length + ' ' + visitedNodes.length);
+
+    while (nodesQueue.length > 0 && pointer.id !== this.goalNode.id) {
       let nearestId = null;
       for (let i = 0; i < nodesQueue.length; i++) {
         if (
@@ -58,30 +53,23 @@ export class RoutingService {
         }
       }
       pointer = nodesQueue.splice(nearestId, 1)[0];
-
-      // if (pointer.distance == Infinity) { break; }
       visitedNodes.push(pointer);
-
-      pointer.edges.forEach(edge => {
-        const tmpDist: number = pointer.distance + pointer.getEdgeWeight(edge, RoutingService.ratings);
-        if (edge.node.distance > tmpDist) {
-          edge.node.distance = tmpDist;
-          edge.node.predecessor_id = pointer.id;
-        }
-      });
+      pointer.weighNeighbors(RoutingService.ratings);
     }
-    console.log('Number of Dijkstra-Loops: ' + count);
+    return this.generateRoute();
+  }
 
+  private generateRoute(): Route {
+    const r: Route = new Route();
     let p: Node = OsmConnectionService.savedNodes[this.goalNode.id];
     r.addNode(p);
     while (p.predecessor_id !== this.startNode.id) {
-      console.log(p);
+      // console.log(p);
       p = OsmConnectionService.savedNodes[p.predecessor_id];
       r.addNode(p);
     }
     r.routeNodes.reverse();
     return r;
-
   }
 
   public getNearestNodeOnStreet(marker: Node): Observable<Node> {
@@ -100,7 +88,7 @@ export class RoutingService {
         obs.next(this.osmConnection.loadBoundingBox(filter, bbox));
       });
       obs.complete();
-    }).flatMap((res) => { return res;})
-    .map((res) => { return OsmConnectionService.savedNodes; });
+    }).flatMap((res) => { return res; })
+      .map((res) => { return OsmConnectionService.savedNodes; });
   }
 }

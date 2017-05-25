@@ -86,7 +86,7 @@ export class MapDirective {
                 () => {
                   StatusComponent.setStatus('cached', 'calculate route');
                   this.mapManagementService.setRoute(
-                    this.routingService.generateRoute()
+                    this.routingService.dijkstra()
                   );
                   StatusComponent.hide();
                 });
@@ -101,7 +101,6 @@ export class MapDirective {
     let position = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
     this.routingService.getNearestAdressNode(
       position).subscribe((res) => {
-
         this.mapManagementService.removeRouteLayer();
         this.activeMarker = new Node(position[0], position[1]).calcNearestNodeFromList(res);
         this.mapManagementService.drawMarker(this.activeMarker);

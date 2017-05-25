@@ -40,6 +40,15 @@ export class Node {
     });
     return weight;
   }
+  public weighNeighbors(ratings: Setting[]): void{
+    this.edges.forEach(edge => {
+        const tmpDist: number = this.distance + this.getEdgeWeight(edge, ratings);
+        if (edge.node.distance > tmpDist) {
+          edge.node.distance = tmpDist;
+          edge.node.predecessor_id = this.id;
+        }
+      });
+  }
 
   public add(n: Node): Node {
     return new Node(this.lon + n.lon, this.lat + n.lat);
@@ -56,6 +65,7 @@ export class Node {
     list.forEach(node => {
       if (node.type === 'node') {
         const tmpNode = new Node(node.lon, node.lat, node.id);
+        tmpNode.tags = node.tags;
         if (nearest == null || this.getDistToPoint(nearest) > this.getDistToPoint(tmpNode)) {
           nearest = tmpNode;
         }
