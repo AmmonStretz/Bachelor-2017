@@ -1,15 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: '[map-navigation]',
-  templateUrl: './navigation.component.html',
+  template: `
+    <i (click)="toggle()">{{icon}}</i>
+    <h2>{{title}}</h2>`,
   styleUrls: ['./navigation.component.scss']
 })
-export class NavigationComponent implements OnInit {
+export class NavigationComponent {
 
-  constructor() { }
+  public settingsVisible = false;
+  private icon = 'settings';
+  private title = 'BikeMap';
 
-  ngOnInit() {
+  private toggle(): void {
+    if (this.settingsVisible) {
+      this.icon = 'settings';
+      this.title = 'BikeMap';
+    } else {
+      this.icon = 'arrow_back';
+      this.title = 'Einstellungen';
+    }
+    this.settingsVisible = !this.settingsVisible;
   }
-
 }

@@ -8,6 +8,6 @@
 <div id="marker" (click)="info.toggle()">
     place
 </div>
-<map-settings class="{{settingsVisible?'visible':'hidden'}}"></map-settings>
+<map-settings class="{{navi.settingsVisible?'visible':'hidden'}}"></map-settings>
 <map-status></map-status>
-<header map-navigation (click)="settingsVisible = !settingsVisible"></header>
+<header map-navigation #navi></header>

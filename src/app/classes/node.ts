@@ -64,8 +64,7 @@ export class Node {
     let nearest: Node = null;
     list.forEach(node => {
       if (node.type === 'node') {
-        const tmpNode = new Node(node.lon, node.lat, node.id);
-        tmpNode.tags = node.tags;
+        const tmpNode = new Node(node.lon, node.lat, node.id, node.tags);
         if (nearest == null || this.getDistToPoint(nearest) > this.getDistToPoint(tmpNode)) {
           nearest = tmpNode;
         }
