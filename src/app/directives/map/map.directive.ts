@@ -75,22 +75,18 @@ export class MapDirective {
             (err) => { StatusComponent.setError('while loading goal node'); },
             () => {
               StatusComponent.setStatus('get_app', 'load data');
-              this.routingService.loadBoundingBoxes(
+              this.routingService.loadBBoxes(
                 BoundingBox.generateBBoxes(
                   this.routingService.startNode,
                   this.routingService.goalNode
-                )
-              ).subscribe(
-                (res) => { },
-                (err) => { StatusComponent.setError('while loading OSM data'); },
-                () => {
+                ),() => {
                   StatusComponent.setStatus('cached', 'calculate route');
                   this.mapManagementService.setRoute(
                     this.routingService.dijkstra()
                   );
                   StatusComponent.hide();
-                });
-
+                }
+              )
             });
         });
     }

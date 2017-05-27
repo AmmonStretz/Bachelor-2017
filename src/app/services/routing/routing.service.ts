@@ -80,6 +80,22 @@ export class RoutingService {
       });
   }
 
+  public loadBBoxes(bboxes: BoundingBox[], subscribe: Function) {
+    const filter = 'way[highway][bicycle!="no"]' + RoutingService.filters;
+    this.osmConnection.loadBoundingBox(filter, bboxes[0]).subscribe(
+      () => { },
+      (exc) => { console.log(exc);},
+      () => {
+        if (bboxes.length > 1) {
+          bboxes.splice(0,1);
+          this.loadBBoxes(bboxes, subscribe);
+        } else {
+          subscribe();
+        }
+      });
+  }
+
+  /* loads data asynchrone */
   public loadBoundingBoxes(notLoadedBBoxes: BoundingBox[]): Observable<Node[]> {
     const filter = 'way[highway][bicycle!="no"]' + RoutingService.filters;
 
