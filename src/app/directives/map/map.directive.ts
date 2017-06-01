@@ -8,7 +8,8 @@ import 'rxjs/Rx';
 import { MapManagementService } from './../../services/map-management/map-management.service';
 import { OsmConnectionService } from './../../services/osm-connection/osm-connection.service';
 import { RoutingService } from './../../services/routing/routing.service';
-import { MarkerInformationService } from './../../services/marker-information/marker-information.service';
+import { InformationFieldComponent } from './../../components/information-field/information-field.component'
+
 import { StatusComponent } from './../../components/status/status.component';
 
 import { Route } from './../../classes/route';
@@ -19,6 +20,8 @@ import { BoundingBox } from './../../classes/bounding-box';
   selector: '[map]'
 })
 export class MapDirective {
+
+  public static infos: InformationFieldComponent;
 
   mapManagementService: MapManagementService;
   routingService: RoutingService;
@@ -79,7 +82,7 @@ export class MapDirective {
                 BoundingBox.generateBBoxes(
                   this.routingService.startNode,
                   this.routingService.goalNode
-                ),() => {
+                ), () => {
                   StatusComponent.setStatus('cached', 'calculate route');
                   this.mapManagementService.setRoute(
                     this.routingService.dijkstra()
@@ -94,16 +97,16 @@ export class MapDirective {
 
   public click(event) {
     StatusComponent.setStatus('place', 'loading nearest adress node');
-    let position = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
-    this.routingService.getNearestAdressNode(
-      position).subscribe((res) => {
+    const pos = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
+    this.osmConnection.getAdressNodes(new Node(pos[0], pos[1]), 0.001)
+      .subscribe((res) => {
         this.mapManagementService.removeRouteLayer();
-        this.activeMarker = new Node(position[0], position[1]).calcNearestNodeFromList(res);
+        this.activeMarker = new Node(pos[0], pos[1]).calcNearestNodeFromList(res);
         this.mapManagementService.drawMarker(this.activeMarker);
-        MarkerInformationService.infos.changeInfo(this.activeMarker);
+        MapDirective.infos.changeInfo(this.activeMarker);
 
       }, (err) => { StatusComponent.setError('no adress node nearby'); },
-      () => { StatusComponent.hide();}
+      () => { StatusComponent.hide(); }
       );
   }
 }

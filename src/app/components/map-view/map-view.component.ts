@@ -14,17 +14,4 @@ export class MapViewComponent {
   @ViewChild('info') info: InformationFieldComponent;
   @ViewChild('navi') navi: NavigationComponent;
   @ViewChild(MapDirective) map: MapDirective;
-
-  locate(): void {
-    this.map.locate();
-  }
-
-  rotate(): void {
-    this.map.rotate();
-  }
-
-  route(): void {
-    this.map.route();
-  }
-
 }

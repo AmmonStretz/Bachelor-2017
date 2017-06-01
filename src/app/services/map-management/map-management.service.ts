@@ -4,6 +4,7 @@ import {
   Geolocation, Map, View, Tile, layer,
   source, control, interaction, geom, proj, format, style, Feature, Coordinate, Overlay
 } from 'openlayers';
+import {InformationFieldComponent} from './../../components/information-field/information-field.component';
 import { Constants } from './../../classes/constants';
 import { Route } from './../../classes/route';
 import { Node } from './../../classes/node';
@@ -13,8 +14,7 @@ export class MapManagementService {
 
   public map: Map;
   private routeLayer: layer.Vector;
-  private positionLayer: layer.Vector;
-
+  private positionLayer: layer.Vector = new layer.Vector();
   public markerOverlay = null;
 
   constructor(elementRef: ElementRef) {
@@ -22,12 +22,17 @@ export class MapManagementService {
       layers: [new layer.Tile({ source: new source.OSM() })],
       target: elementRef.nativeElement,
       view: new View({
-        center: proj.fromLonLat([13.33962, 52.53250]),
+        center: proj.fromLonLat([0, 0]),
         projection: 'EPSG:3857',
         zoom: 18
       })
     });
 
+    this.map.addLayer(this.positionLayer);
+
+    navigator.geolocation.getCurrentPosition((pos) => {
+      this.map.getView().setCenter(proj.fromLonLat([pos.coords.longitude, pos.coords.latitude]));
+    });
   }
 
   private getDistToPoint(coord: any, x: number, y: number): number {
@@ -35,6 +40,7 @@ export class MapManagementService {
   }
 
   public drawMarker(node: Node): void {
+    this.removeRouteLayer();
     const marker = document.getElementById('marker');
     marker.style.display = 'block';
     const overlay = new Overlay({
@@ -67,14 +73,15 @@ export class MapManagementService {
       source: new source.Vector({
         features: [
           new Feature({
-            geometry: new geom.Circle(proj.fromLonLat([position.coords.longitude, position.coords.latitude]), 0)
-          , style: Constants.locationPointStyle})]
+            geometry: new geom.Circle(
+              proj.fromLonLat([position.coords.longitude, position.coords.latitude]), 0)
+          })]
       }), style: Constants.locationPointStyle
     });
+    // overwride positionLayer
     this.map.removeLayer(this.positionLayer);
     this.map.addLayer(pl);
     this.positionLayer = pl;
-    console.log('position updated');
   }
 
   public setRoute(route: Route) {

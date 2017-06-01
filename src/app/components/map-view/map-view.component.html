@@ -1,8 +1,12 @@
 <div map></div>
 <map-information-field #info></map-information-field>
-<map-button class="primary" id="primary" (click)="route()">directions_bike</map-button>
-<map-button class="secondary" id="secondary" (click)="locate()">my_location</map-button>
-<map-button class="secondary min" id="topButton" (click)="rotate()">
+<map-button class="primary" id="primary" (click)="map.route()">
+    directions_bike
+</map-button>
+<map-button class="secondary" id="secondary" (click)="map.locate()">
+    my_location
+</map-button>
+<map-button class="secondary min" id="topButton" (click)="map.rotate()">
     <img src="../../assets/img/compass.svg">
 </map-button>
 <div id="marker" (click)="info.toggle()">

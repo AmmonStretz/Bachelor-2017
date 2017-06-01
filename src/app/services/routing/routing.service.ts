@@ -26,10 +26,6 @@ export class RoutingService {
 
   constructor(private osmConnection: OsmConnectionService) { }
 
-  public getNearestAdressNode(a: number[]) {
-    return this.osmConnection.getAdressNodes(new Node(a[0], a[1]), this.boxSize);
-  }
-
   public dijkstra(): Route {
 
     const nodesQueue: Node[] = [];
