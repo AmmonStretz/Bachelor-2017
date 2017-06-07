@@ -3,6 +3,7 @@
     <button (click)="toggle()">></button>
 </header>
 <p *ngIf="isOpen">
-    {{street}} {{street_nr}}
-    <br> {{postal_code}} {{city}}
+    {{activeMarker.tags['addr:street']}} {{activeMarker.tags['addr:housenumber']}}
+    <br> {{activeMarker.tags['addr:postcode']}} {{activeMarker.tags['addr:city']}}
+    <br> {{activeMarker.tags['addr:suburb']}}
 </p>

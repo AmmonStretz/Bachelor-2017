@@ -14,52 +14,60 @@ import { Node } from './../../classes/node';
 import { BoundingBox } from './../../classes/bounding-box';
 import { Constants } from './../../classes/constants';
 import { Setting } from './../../classes/setting';
+import { SettingsComponent } from './../../components/settings/settings.component';
 
 @Injectable()
 export class RoutingService {
 
-  public static filters = '';
-  public static ratings: Setting[] = [];
-  public startNode: Node;
-  public goalNode: Node;
-  private boxSize = 0.001;
-
   constructor(private osmConnection: OsmConnectionService) { }
 
-  public dijkstra(): Route {
+  public dijkstra(start: Node, goal: Node): Route {
 
-    const nodesQueue: Node[] = [];
-    const visitedNodes: Node[] = [];
+    const S: Node[] = [];
+    const Q: Node[] = [];
 
-    OsmConnectionService.savedNodes[this.startNode.id].distance = 0;
+    let s: Node = new Node(Infinity, Infinity);
+    let g: Node = new Node(Infinity, Infinity);
     for (const k in OsmConnectionService.savedNodes) {
       if (OsmConnectionService.savedNodes.hasOwnProperty(k)) {
-        nodesQueue.push(OsmConnectionService.savedNodes[k]);
-      }
-    }
-
-    let pointer: Node = OsmConnectionService.savedNodes[this.startNode.id];
-
-    while (nodesQueue.length > 0 && pointer.id !== this.goalNode.id) {
-      let nearestId = null;
-      for (let i = 0; i < nodesQueue.length; i++) {
-        if (
-          nearestId == null || nodesQueue[i].distance < nodesQueue[nearestId].distance) {
-          nearestId = i;
+        Q.push(OsmConnectionService.savedNodes[k]);
+        if (start.getDistToPoint(s) >
+          start.getDistToPoint(OsmConnectionService.savedNodes[k])) {
+          s = OsmConnectionService.savedNodes[k];
+        }
+        if (goal.getDistToPoint(g) >
+          goal.getDistToPoint(OsmConnectionService.savedNodes[k])) {
+          g = OsmConnectionService.savedNodes[k];
         }
       }
-      pointer = nodesQueue.splice(nearestId, 1)[0];
-      visitedNodes.push(pointer);
-      pointer.weighNeighbors(RoutingService.ratings);
     }
-    return this.generateRoute();
+    OsmConnectionService.savedNodes[s.id].distance = 0;
+
+    let u: Node = new Node(0, 0);
+    while (Q.length > 0 && u.id !== g.id) {
+      u = this.extractMin(Q);
+      S.push(u);
+      u.weighNeighbors(SettingsComponent.filteredSettings);
+    }
+    return this.generateRoute(s, g);
   }
 
-  private generateRoute(): Route {
+  private extractMin(Q: Node[]) {
+    let nearestId = null;
+    for (let i = 0; i < Q.length; i++) {
+      if (
+        nearestId == null || Q[i].distance < Q[nearestId].distance) {
+        nearestId = i;
+      }
+    }
+    return Q.splice(nearestId, 1)[0];
+  }
+
+  private generateRoute(s: Node, g: Node): Route {
     const r: Route = new Route();
-    let p: Node = OsmConnectionService.savedNodes[this.goalNode.id];
+    let p: Node = OsmConnectionService.savedNodes[g.id];
     r.addNode(p);
-    while (p.predecessor_id !== this.startNode.id) {
+    while (p.predecessor_id !== s.id) {
       // console.log(p);
       p = OsmConnectionService.savedNodes[p.predecessor_id];
       r.addNode(p);
@@ -68,32 +76,22 @@ export class RoutingService {
     return r;
   }
 
-  public getNearestNodeOnStreet(marker: Node): Observable<Node> {
-    return this.osmConnection
-      .getWayFromAdress(marker, this.boxSize)
-      .map((res) => {
-        return marker.calcNearestNodeFromList(res);
-      });
-  }
-
-  public loadBBoxes(bboxes: BoundingBox[], subscribe: Function) {
-    const filter = 'way[highway][bicycle!="no"]' + RoutingService.filters;
-    this.osmConnection.loadBoundingBox(filter, bboxes[0]).subscribe(
-      () => { },
-      (exc) => { console.log(exc);},
+  public loadBBoxes(bboxes: BoundingBox[], final: Function) {
+    const filter = 'way[highway][bicycle!="no"]' + SettingsComponent.filters;
+    this.osmConnection.loadBoundingBox(filter, bboxes.splice(0, 1)[0]).subscribe(
+      (res) => { }, (exc) => { },
       () => {
-        if (bboxes.length > 1) {
-          bboxes.splice(0,1);
-          this.loadBBoxes(bboxes, subscribe);
+        if (bboxes.length > 0) {
+          this.loadBBoxes(bboxes, final);
         } else {
-          subscribe();
+          final();
         }
       });
   }
 
   /* loads data asynchrone */
   public loadBoundingBoxes(notLoadedBBoxes: BoundingBox[]): Observable<Node[]> {
-    const filter = 'way[highway][bicycle!="no"]' + RoutingService.filters;
+    const filter = 'way[highway][bicycle!="no"]' + SettingsComponent.filters;
 
     return Observable.create((obs: Observer<Observable<any>>) => {
       notLoadedBBoxes.forEach(bbox => {

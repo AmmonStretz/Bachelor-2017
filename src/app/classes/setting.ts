@@ -30,7 +30,6 @@ export class Setting {
     this.block = block || false;
     this.rating = rating || 1.0;
   }
-  
   public getUseKey(): string {
     return this.key + '_' + this.value + '_use';
   }

@@ -61,42 +61,24 @@ export class MapDirective {
   }
 
   public route(): void {
-
-    if (this.activeMarker) {
-      StatusComponent.setStatus('my_location', 'loading start node');
-      this.routingService.getNearestNodeOnStreet(
-        new Node(this.position.coords.longitude, this.position.coords.latitude)
-      ).subscribe(
-        (res) => { this.routingService.startNode = res; },
-        (err) => { StatusComponent.setError('while loading start node'); },
+    if (this.activeMarker && this.position) {
+      const pos = new Node(this.position.coords.longitude, this.position.coords.latitude);
+      StatusComponent.setStatus('get_app', 'load data');
+      this.routingService.loadBBoxes(
+        BoundingBox.generateBBoxes(pos, this.activeMarker),
         () => {
-          StatusComponent.setStatus('place', 'loading goal node');
-          this.routingService.getNearestNodeOnStreet(
-            this.activeMarker
-          ).subscribe(
-            (res) => { this.routingService.goalNode = res; },
-            (err) => { StatusComponent.setError('while loading goal node'); },
-            () => {
-              StatusComponent.setStatus('get_app', 'load data');
-              this.routingService.loadBBoxes(
-                BoundingBox.generateBBoxes(
-                  this.routingService.startNode,
-                  this.routingService.goalNode
-                ), () => {
-                  StatusComponent.setStatus('cached', 'calculate route');
-                  this.mapManagementService.setRoute(
-                    this.routingService.dijkstra()
-                  );
-                  StatusComponent.hide();
-                }
-              )
-            });
-        });
+          StatusComponent.setStatus('cached', 'calculate route');
+          this.mapManagementService.setRoute(
+            this.routingService.dijkstra(pos, this.activeMarker)
+          );
+          StatusComponent.hide();
+        }
+      );
     }
   }
 
   public click(event) {
-    StatusComponent.setStatus('place', 'loading nearest adress node');
+    StatusComponent.setStatus('place', 'loading nearest adress node'); // <- status
     const pos = proj.transform(event.coordinate, 'EPSG:3857', 'EPSG:4326');
     this.osmConnection.getAdressNodes(new Node(pos[0], pos[1]), 0.001)
       .subscribe((res) => {
@@ -104,9 +86,11 @@ export class MapDirective {
         this.activeMarker = new Node(pos[0], pos[1]).calcNearestNodeFromList(res);
         this.mapManagementService.drawMarker(this.activeMarker);
         MapDirective.infos.changeInfo(this.activeMarker);
-
-      }, (err) => { StatusComponent.setError('no adress node nearby'); },
-      () => { StatusComponent.hide(); }
-      );
+      }, (err) => {
+        StatusComponent.setError('no adress node nearby'); // <- status
+      }, () => {
+        StatusComponent.hide(); // <- status
+      });
   }
+
 }

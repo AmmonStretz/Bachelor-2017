@@ -13,7 +13,7 @@
                 </label>
                 <label *ngIf="myForm.value[myForm.value.list[i]].use && !myForm.value[myForm.value.list[i]].block">
                     bewerten:
-                    <input type="number" step="0.1" formControlName="rating">
+                    <input type="number" step="0.1" min="0" formControlName="rating">
                 </label>
             </div>
         </div>

@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, ElementRef } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, FormArray } from '@angular/forms';
-import { RoutingService } from '../../services/routing/routing.service';
 import { Setting } from './../../classes/setting';
 @Component({
   selector: 'map-settings',
@@ -9,9 +8,15 @@ import { Setting } from './../../classes/setting';
 })
 export class SettingsComponent implements OnInit {
 
+  public static filters = '';
+  public static filteredSettings: Setting[] = [];
+
   public myForm: FormGroup;
   public list: FormArray;
   private settings: Setting[] = Setting.default_settings;
+
+  private test: any;
+  private u:any;
 
   ngOnInit() {
     this.loadCookie();
@@ -24,19 +29,17 @@ export class SettingsComponent implements OnInit {
     this.settings.forEach(s => {
       this.addControl(s);
     });
-
-    this.updateRoutingSettings();
   }
 
   private updateRoutingSettings() {
-    RoutingService.ratings = [];
-    RoutingService.filters = '';
+    SettingsComponent.filteredSettings = [];
+    SettingsComponent.filters = '';
     this.settings.forEach(s => {
       if (s.use) {
         if (!s.block) {
-          RoutingService.ratings.push(s);
+          SettingsComponent.filteredSettings.push(s);
         } else {
-          RoutingService.filters += '[' + s.key + '!="' + s.value + '"]';
+          SettingsComponent.filters += '[' + s.key + '!="' + s.value + '"]';
         }
       }
     });
@@ -74,7 +77,6 @@ export class SettingsComponent implements OnInit {
 
   private loadCookie() {
     const cookies = [];
-    //read Cookies
     document.cookie.split(';').forEach(c => {
       const tmp = c.split('=');
       if (tmp.length === 2) {
@@ -84,7 +86,6 @@ export class SettingsComponent implements OnInit {
         cookies[tmp[0]] = tmp[1];
       }
     });
-    // overwride settings with Cookies
     this.settings.forEach(setting => {
       if (cookies[setting.getRatingKey()]) {
         setting.rating = Number(cookies[setting.getRatingKey()]);
@@ -93,7 +94,7 @@ export class SettingsComponent implements OnInit {
         setting.use = cookies[setting.getUseKey()] === 'true';
       }
       if (cookies[setting.getBlockKey()]) {
-          setting.block = cookies[setting.getBlockKey()] === 'true';
+        setting.block = cookies[setting.getBlockKey()] === 'true';
       }
     });
     this.updateRoutingSettings();
