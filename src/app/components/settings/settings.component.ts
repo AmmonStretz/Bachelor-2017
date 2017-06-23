@@ -16,7 +16,7 @@ export class SettingsComponent implements OnInit {
   private settings: Setting[] = Setting.default_settings;
 
   private test: any;
-  private u:any;
+  private u: any;
 
   ngOnInit() {
     this.loadCookie();

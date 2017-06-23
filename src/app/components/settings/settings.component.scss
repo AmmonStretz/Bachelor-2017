@@ -4,6 +4,18 @@
 }
 
 :host {
+    button {
+        border: none;
+        padding: 10.5px;
+        font-size: 1.17em;
+        background-color: $primary-color;
+        color: $white-color;
+        width: 100%;
+        font-family: 'Roboto';
+        &:active {
+            background-color: $dark-primary;
+        }
+    }
     div[content] {
         width: 100%;
         min-height: calc(100vh - 88px);

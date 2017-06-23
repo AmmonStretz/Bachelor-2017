@@ -69,6 +69,7 @@ export class MapManagementService {
   }
 
   public updatePosition(position: any): void {
+    
     const pl: layer.Vector = new layer.Vector({
       source: new source.Vector({
         features: [
@@ -78,7 +79,7 @@ export class MapManagementService {
           })]
       }), style: Constants.locationPointStyle
     });
-    // overwride positionLayer
+
     this.map.removeLayer(this.positionLayer);
     this.map.addLayer(pl);
     this.positionLayer = pl;

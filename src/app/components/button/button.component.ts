@@ -1,4 +1,4 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'map-button',
@@ -8,6 +8,5 @@ import { Component, ElementRef } from '@angular/core';
   `,
   styleUrls: ['./button.component.scss']
 })
-export class ButtonComponent {
-  constructor(public element: ElementRef) {}
-}
+export class ButtonComponent {}
+
